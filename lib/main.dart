@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart';
+import 'core/theme.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/auth/register_screen.dart';
+import 'screens/home/home_screen.dart';
+import 'screens/trip/trip_detail_screen.dart';
+import 'screens/trip/booking_screen.dart';
 
 void main() {
-  runApp(const BNWMobileApp());
+  runApp(const IslandClubApp());
 }
 
-class BNWMobileApp extends StatelessWidget {
-  const BNWMobileApp({super.key});
+class IslandClubApp extends StatelessWidget {
+  const IslandClubApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Beyond & Wanders Mobile',
+      title: 'Beyond & Wanders',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        fontFamily: 'Roboto', // Bisa disesuaikan dengan font project kalian
-        scaffoldBackgroundColor: const Color(0xFFFEFBEA),
-      ),
-      home: const SplashScreen(),
+      theme: IslandClubTheme.theme, // Memanggil tema "Summer Girls"
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+        '/home': (context) => const HomeScreen(),
+        '/detail': (context) => const TripDetailScreen(),
+        '/booking': (context) => const BookingScreen(),// Tambahkan baris ini
+      },
     );
   }
 }
