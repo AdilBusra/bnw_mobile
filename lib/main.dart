@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart';
+import 'core/theme/app_theme.dart'; // Import tema global kita
+import 'screens/admin/admin_dashboard_screen.dart'; // Halaman awal Admin Dashboard
 
 void main() {
   runApp(const BNWMobileApp());
@@ -13,12 +14,10 @@ class BNWMobileApp extends StatelessWidget {
     return MaterialApp(
       title: 'Beyond & Wanders Mobile',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        fontFamily: 'Roboto', // Bisa disesuaikan dengan font project kalian
-        scaffoldBackgroundColor: const Color(0xFFFEFBEA),
-      ),
-      home: const SplashScreen(),
+      // Menerapkan tema global (termasuk font Fredoka & DM Sans)
+      theme: AppTheme.lightTheme,
+      // Halaman pertama yang dibuka
+      home: AdminDashboardScreen(),
     );
   }
 }
