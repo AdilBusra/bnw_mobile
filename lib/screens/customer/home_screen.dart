@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'saved_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -26,22 +27,24 @@ class _HomeScreenState extends State<HomeScreen> {
       // FLOATING ACTION BUTTON CHAT AI DIKEMBALIKAN KE HOME
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton(
-        onPressed: () {
-          // Aksi ketika tombol Chat AI ditekan di Home
-        },
-        backgroundColor: const Color(0xFFF5427D),
-        foregroundColor: Colors.white,
-        elevation: 6,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: const Icon(Icons.chat_bubble_rounded),
-      )
+              onPressed: () {
+                // Aksi ketika tombol Chat AI ditekan di Home
+              },
+              backgroundColor: const Color(0xFFF5427D),
+              foregroundColor: Colors.white,
+              elevation: 6,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Icon(Icons.chat_bubble_rounded),
+            )
           : null,
 
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          border: const Border(top: BorderSide(color: Color(0xFFFFD1DC), width: 2)),
+          border: const Border(
+            top: BorderSide(color: Color(0xFFFFD1DC), width: 2),
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
@@ -70,10 +73,22 @@ class _HomeScreenState extends State<HomeScreen> {
             type: BottomNavigationBarType.fixed,
             elevation: 0,
             items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home_filled, size: 28), label: 'Home'),
-              BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded, size: 28), label: 'Saved'),
-              BottomNavigationBarItem(icon: Icon(Icons.confirmation_num_outlined, size: 28), label: 'Tickets'),
-              BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded, size: 28), label: 'Profile'),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_filled, size: 28),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.favorite_border_rounded, size: 28),
+                label: 'Saved',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.confirmation_num_outlined, size: 28),
+                label: 'Tickets',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline_rounded, size: 28),
+                label: 'Profile',
+              ),
             ],
           ),
         ),
@@ -99,7 +114,7 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
     'Private Trip',
     'Family Trip',
     'Honeymoon',
-    'Corporate'
+    'Corporate',
   ];
   int _selectedCategory = 0;
   int _currentPromoIndex = 0;
@@ -148,12 +163,12 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
     {
       'name': 'Sarah L.',
       'text': '"Sipolha is totally a hidden gem! The trip was well organized and so aesthetic."',
-      'image': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop'
+      'image': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop',
     },
     {
       'name': 'Michelle O.',
       'text': '"Best girls trip ever. The view from Bukit Holbung was breathtaking!"',
-      'image': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150&auto=format&fit=crop'
+      'image': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150&auto=format&fit=crop',
     },
   ];
 
@@ -164,7 +179,9 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
   void _toggleSave(Map<String, dynamic> trip) {
     setState(() {
       if (_isSaved(trip)) {
-        globalSavedTrips.removeWhere((element) => element['title'] == trip['title']);
+        globalSavedTrips.removeWhere(
+          (element) => element['title'] == trip['title'],
+        );
       } else {
         globalSavedTrips.add(trip);
       }
@@ -215,12 +232,17 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                       padding: const EdgeInsets.all(3.0),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFF5427D), width: 2),
+                        border: Border.all(
+                          color: const Color(0xFFF5427D),
+                          width: 2,
+                        ),
                       ),
                       child: const CircleAvatar(
                         radius: 26,
                         backgroundColor: Colors.white,
-                        backgroundImage: AssetImage('assets/images/profile.png'),
+                        backgroundImage: AssetImage(
+                          'assets/images/profile.png',
+                        ),
                       ),
                     ),
                   ],
@@ -256,7 +278,11 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                             color: Color(0xFF65D5D5),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.tune, color: Colors.white, size: 20),
+                          child: const Icon(
+                            Icons.tune,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
@@ -308,7 +334,7 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
                       _promos.length,
-                          (index) => AnimatedContainer(
+                      (index) => AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         margin: const EdgeInsets.symmetric(horizontal: 4.0),
                         height: 8.0,
@@ -346,7 +372,9 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                           });
                         },
                         labelStyle: TextStyle(
-                          color: isSelected ? Colors.white : const Color(0xFF164C55),
+                          color: isSelected
+                              ? Colors.white
+                              : const Color(0xFF164C55),
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Fredoka',
                         ),
@@ -355,7 +383,9 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(999),
                           side: BorderSide(
-                            color: isSelected ? Colors.transparent : const Color(0xFFFFD1DC),
+                            color: isSelected
+                                ? Colors.transparent
+                                : const Color(0xFFFFD1DC),
                             width: 2,
                           ),
                         ),
@@ -372,7 +402,10 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Popular Escapes', style: theme.textTheme.displayMedium),
+                    Text(
+                      'Popular Escapes',
+                      style: theme.textTheme.displayMedium,
+                    ),
                     Text(
                       'See All',
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -398,11 +431,18 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
 
                     return GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, '/detail', arguments: trip);
+                        Navigator.pushNamed(
+                          context,
+                          '/detail',
+                          arguments: trip,
+                        );
                       },
                       child: Container(
                         width: size.width * 0.65,
-                        margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 8.0,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(32),
@@ -443,7 +483,9 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                                             shape: BoxShape.circle,
                                           ),
                                           child: Icon(
-                                            saved ? Icons.favorite : Icons.favorite_border_rounded,
+                                            saved
+                                                ? Icons.favorite
+                                                : Icons.favorite_border_rounded,
                                             color: const Color(0xFFF5427D),
                                             size: 20,
                                           ),
@@ -460,25 +502,34 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
                                         child: Text(
                                           trip['title'],
-                                          style: theme.textTheme.titleLarge?.copyWith(
-                                            color: const Color(0xFF164C55),
-                                          ),
+                                          style: theme.textTheme.titleLarge
+                                              ?.copyWith(
+                                                color: const Color(0xFF164C55),
+                                              ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                       Row(
                                         children: [
-                                          const Icon(Icons.star_rounded, color: Color(0xFFFFC857), size: 20),
+                                          const Icon(
+                                            Icons.star_rounded,
+                                            color: Color(0xFFFFC857),
+                                            size: 20,
+                                          ),
                                           const SizedBox(width: 4),
                                           Text(
                                             trip['rating'],
-                                            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF164C55)),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF164C55),
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -487,7 +538,11 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      const Icon(Icons.location_on_outlined, color: Color(0xFFF5427D), size: 16),
+                                      const Icon(
+                                        Icons.location_on_outlined,
+                                        color: Color(0xFFF5427D),
+                                        size: 16,
+                                      ),
                                       const SizedBox(width: 4),
                                       Expanded(
                                         child: Text(
@@ -501,25 +556,37 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                                   ),
                                   const SizedBox(height: 16),
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         trip['price'],
-                                        style: theme.textTheme.displayMedium?.copyWith(
-                                          color: const Color(0xFF164C55),
-                                          fontSize: 20,
-                                        ),
+                                        style: theme.textTheme.displayMedium
+                                            ?.copyWith(
+                                              color: const Color(0xFF164C55),
+                                              fontSize: 20,
+                                            ),
                                       ),
                                       ElevatedButton(
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFFF5427D),
-                                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                          backgroundColor: const Color(
+                                            0xFFF5427D,
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 20,
+                                            vertical: 12,
+                                          ),
                                           minimumSize: Size.zero,
                                           elevation: 4,
-                                          shadowColor: const Color(0xFFF5427D).withOpacity(0.4),
+                                          shadowColor: const Color(0xFFF5427D)
+                                              .withOpacity(0.4),
                                         ),
                                         onPressed: () {
-                                          Navigator.pushNamed(context, '/detail', arguments: trip);
+                                          Navigator.pushNamed(
+                                            context,
+                                            '/detail',
+                                            arguments: trip,
+                                          );
                                         },
                                         child: const Text('Book'),
                                       ),
@@ -540,7 +607,10 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
               // WHAT THEY SAY
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text('What They Say', style: theme.textTheme.displayMedium),
+                child: Text(
+                  'What They Say',
+                  style: theme.textTheme.displayMedium,
+                ),
               ),
               const SizedBox(height: 16),
 
@@ -554,7 +624,10 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                     final review = _reviews[index];
                     return Container(
                       width: size.width * 0.75,
-                      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 8.0,
+                      ),
                       padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -589,7 +662,14 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                                       ),
                                     ),
                                     Row(
-                                      children: List.generate(5, (index) => const Icon(Icons.star_rounded, color: Color(0xFFFFC857), size: 14)),
+                                      children: List.generate(
+                                        5,
+                                        (index) => const Icon(
+                                          Icons.star_rounded,
+                                          color: Color(0xFFFFC857),
+                                          size: 14,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -662,10 +742,7 @@ class TicketsScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFFF7DF),
-              Color(0xFFFFD1DC),
-            ],
+            colors: [Color(0xFFFFF7DF), Color(0xFFFFD1DC)],
           ),
         ),
         child: SafeArea(
@@ -677,17 +754,17 @@ class TicketsScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'My Tickets',
-                      style: theme.textTheme.displayMedium,
-                    ),
+                    Text('My Tickets', style: theme.textTheme.displayMedium),
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.confirmation_num_rounded, color: Color(0xFFF5427D)),
+                      child: const Icon(
+                        Icons.confirmation_num_rounded,
+                        color: Color(0xFFF5427D),
+                      ),
                     ),
                   ],
                 ),
@@ -695,130 +772,175 @@ class TicketsScreen extends StatelessWidget {
               Expanded(
                 child: _tickets.isEmpty
                     ? Center(
-                  child: Text(
-                    'No tickets booked yet, bestie!',
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: const Color(0xFF164C55).withOpacity(0.6),
-                    ),
-                  ),
-                )
-                    : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  itemCount: _tickets.length,
-                  itemBuilder: (context, index) {
-                    final ticket = _tickets[index];
-                    final isConfirmed = ticket['status'] == 'Confirmed';
-
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 20.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
-                            blurRadius: 15,
-                            offset: const Offset(0, 5),
+                        child: Text(
+                          'No tickets booked yet, bestie!',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: const Color(0xFF164C55).withOpacity(0.6),
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        itemCount: _tickets.length,
+                        itemBuilder: (context, index) {
+                          final ticket = _tickets[index];
+                          final isConfirmed = ticket['status'] == 'Confirmed';
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 20.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.06),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: Column(
                               children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Image.asset(
-                                    ticket['image'],
-                                    width: 80,
-                                    height: 80,
-                                    fit: BoxFit.cover,
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: Image.asset(
+                                          ticket['image'],
+                                          width: 80,
+                                          height: 80,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    ticket['title'],
+                                                    style: theme
+                                                        .textTheme
+                                                        .titleLarge
+                                                        ?.copyWith(
+                                                          fontSize: 16,
+                                                        ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 4,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: isConfirmed
+                                                        ? const Color(
+                                                            0xFF65D5D5,
+                                                          ).withOpacity(0.2)
+                                                        : const Color(
+                                                            0xFFFFC857,
+                                                          ).withOpacity(0.2),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    ticket['status'],
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: isConfirmed
+                                                          ? const Color(
+                                                              0xFF164C55,
+                                                            )
+                                                          : const Color(
+                                                              0xFF856404,
+                                                            ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              ticket['location'],
+                                              style: theme.textTheme.bodyMedium
+                                                  ?.copyWith(fontSize: 12),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.calendar_today_rounded,
+                                                  size: 14,
+                                                  color: Color(0xFFF5427D),
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  ticket['date'],
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Color(0xFF164C55),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                const Divider(
+                                  height: 1,
+                                  color: Color(0xFFFFD1DC),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              ticket['title'],
-                                              style: theme.textTheme.titleLarge?.copyWith(fontSize: 16),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                                              color: isConfirmed
-                                                  ? const Color(0xFF65D5D5).withOpacity(0.2)
-                                                  : const Color(0xFFFFC857).withOpacity(0.2),
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                            child: Text(
-                                              ticket['status'],
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                                color: isConfirmed ? const Color(0xFF164C55) : const Color(0xFF856404),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 4),
                                       Text(
-                                        ticket['location'],
-                                        style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12),
+                                        '${ticket['type']} • ${ticket['participants']}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: const Color(0xFF164C55)
+                                              .withOpacity(0.7),
+                                        ),
                                       ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.calendar_today_rounded, size: 14, color: Color(0xFFF5427D)),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            ticket['date'],
-                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF164C55)),
-                                          ),
-                                        ],
+                                      Text(
+                                        ticket['price'],
+                                        style: theme.textTheme.displayMedium
+                                            ?.copyWith(
+                                              color: const Color(0xFFF5427D),
+                                              fontSize: 16,
+                                            ),
                                       ),
                                     ],
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                          const Divider(height: 1, color: Color(0xFFFFD1DC)),
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '${ticket['type']} • ${ticket['participants']}',
-                                  style: TextStyle(fontSize: 12, color: const Color(0xFF164C55).withOpacity(0.7)),
-                                ),
-                                Text(
-                                  ticket['price'],
-                                  style: theme.textTheme.displayMedium?.copyWith(
-                                    color: const Color(0xFFF5427D),
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           ),
@@ -845,8 +967,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // 1. POP-UP EDIT PROFILE
   void _showEditProfileDialog(BuildContext context) {
-    final TextEditingController nameController = TextEditingController(text: _name);
-    final TextEditingController emailController = TextEditingController(text: _email);
+    final TextEditingController nameController = TextEditingController(
+      text: _name,
+    );
+    final TextEditingController emailController = TextEditingController(
+      text: _email,
+    );
     String tempImage = _profileImage;
 
     final List<String> availableImages = [
@@ -863,11 +989,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(28),
+              ),
               backgroundColor: Colors.white,
               title: const Text(
                 'Edit Profile ✨',
-                style: TextStyle(color: Color(0xFF164C55), fontWeight: FontWeight.bold, fontSize: 20),
+                style: TextStyle(
+                  color: Color(0xFF164C55),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
               ),
               content: SingleChildScrollView(
                 child: SizedBox(
@@ -876,7 +1008,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Choose Profile Picture', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF164C55))),
+                      const Text(
+                        'Choose Profile Picture',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF164C55),
+                        ),
+                      ),
                       const SizedBox(height: 10),
                       SizedBox(
                         height: 65,
@@ -897,7 +1036,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: isSelected ? const Color(0xFFF5427D) : Colors.transparent,
+                                    color: isSelected
+                                        ? const Color(0xFFF5427D)
+                                        : Colors.transparent,
                                     width: 3,
                                   ),
                                 ),
@@ -948,10 +1089,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: TextButton(
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancel', style: TextStyle(color: Color(0xFF164C55), fontWeight: FontWeight.bold)),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: Color(0xFF164C55),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -961,7 +1110,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           backgroundColor: const Color(0xFFF5427D),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           elevation: 4,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                         onPressed: () {
                           setState(() {
@@ -971,10 +1122,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           });
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Profile updated successfully! ✨')),
+                            const SnackBar(
+                              content: Text('Profile updated successfully! ✨'),
+                            ),
                           );
                         },
-                        child: const Text('Save', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        child: const Text(
+                          'Save',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -1011,7 +1170,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Notifications', style: TextStyle(color: Color(0xFF164C55), fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Notifications',
+          style: TextStyle(
+            color: Color(0xFF164C55),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView.builder(
@@ -1029,11 +1194,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(notif['title']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF164C55))),
+                    Text(
+                      notif['title']!,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Color(0xFF164C55),
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text(notif['desc']!, style: const TextStyle(fontSize: 11, color: Color(0xFF164C55))),
+                    Text(
+                      notif['desc']!,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF164C55),
+                      ),
+                    ),
                     const SizedBox(height: 6),
-                    Text(notif['time']!, style: TextStyle(fontSize: 9, color: Color(0xFF164C55).withOpacity(0.6))),
+                    Text(
+                      notif['time']!,
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: Color(0xFF164C55).withOpacity(0.6),
+                      ),
+                    ),
                   ],
                 ),
               );
@@ -1043,7 +1227,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close', style: TextStyle(color: Color(0xFFF5427D), fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                color: Color(0xFFF5427D),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -1064,10 +1254,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFFF7DF),
-              Color(0xFFFFD1DC),
-            ],
+            colors: [Color(0xFFFFF7DF), Color(0xFFFFD1DC)],
           ),
         ),
         child: SafeArea(
@@ -1077,10 +1264,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'My Profile',
-                  style: theme.textTheme.displayMedium,
-                ),
+                Text('My Profile', style: theme.textTheme.displayMedium),
                 const SizedBox(height: 32),
                 Container(
                   padding: const EdgeInsets.all(24),
@@ -1101,7 +1285,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         padding: const EdgeInsets.all(3.0),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: const Color(0xFFF5427D), width: 2),
+                          border: Border.all(
+                            color: const Color(0xFFF5427D),
+                            width: 2,
+                          ),
                         ),
                         child: CircleAvatar(
                           radius: 36,
@@ -1116,18 +1303,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             Text(
                               _name,
-                              style: theme.textTheme.displayLarge?.copyWith(fontSize: 22),
+                              style: theme.textTheme.displayLarge?.copyWith(
+                                fontSize: 22,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               _email,
-                              style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontSize: 12,
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFFFD1DC),
                                 borderRadius: BorderRadius.circular(999),
@@ -1148,17 +1342,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                Text('Account Settings', style: theme.textTheme.titleLarge?.copyWith(fontSize: 18, color: const Color(0xFF164C55))),
+                Text(
+                  'Account Settings',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontSize: 18,
+                    color: const Color(0xFF164C55),
+                  ),
+                ),
                 const SizedBox(height: 16),
                 _buildProfileMenuItem(
                   Icons.person_outline_rounded,
                   'Edit Profile',
-                      () => _showEditProfileDialog(context),
+                  () => _showEditProfileDialog(context),
                 ),
                 _buildProfileMenuItem(
                   Icons.favorite_border_rounded,
                   'Saved Wishlist',
-                      () {
+                  () {
                     if (homeState != null) {
                       homeState.setState(() {
                         homeState._selectedIndex = 1;
@@ -1169,7 +1369,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildProfileMenuItem(
                   Icons.confirmation_num_outlined,
                   'Booking History',
-                      () {
+                  () {
                     if (homeState != null) {
                       homeState.setState(() {
                         homeState._selectedIndex = 2;
@@ -1180,14 +1380,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildProfileMenuItem(
                   Icons.notifications_outlined,
                   'Notifications',
-                      () => _showNotificationsDialog(context),
+                  () => _showNotificationsDialog(context),
+                ),
+                _buildProfileMenuItem(
+                  Icons.admin_panel_settings_outlined,
+                  'Switch to Admin Portal',
+                  () {
+                    Navigator.pushNamed(context, '/admin');
+                  },
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFFF5427D), width: 2),
+                      side: const BorderSide(
+                        color: Color(0xFFF5427D),
+                        width: 2,
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(999),
@@ -1197,20 +1407,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                          title: const Text('Log Out', style: TextStyle(color: Color(0xFF164C55), fontWeight: FontWeight.bold)),
-                          content: const Text('Are you sure you want to log out, bestie?', style: TextStyle(color: Color(0xFF164C55))),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          title: const Text(
+                            'Log Out',
+                            style: TextStyle(
+                              color: Color(0xFF164C55),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          content: const Text(
+                            'Are you sure you want to log out, bestie?',
+                            style: TextStyle(color: Color(0xFF164C55)),
+                          ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: const Text('Cancel', style: TextStyle(color: Color(0xFF164C55))),
+                              child: const Text(
+                                'Cancel',
+                                style: TextStyle(color: Color(0xFF164C55)),
+                              ),
                             ),
                             TextButton(
                               onPressed: () {
                                 Navigator.pop(context);
-                                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  '/',
+                                  (route) => false,
+                                );
                               },
-                              child: const Text('Log Out', style: TextStyle(color: Color(0xFFF5427D), fontWeight: FontWeight.bold)),
+                              child: const Text(
+                                'Log Out',
+                                style: TextStyle(
+                                  color: Color(0xFFF5427D),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -1236,7 +1470,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildProfileMenuItem(IconData icon, String title, VoidCallback onTap) {
+  Widget _buildProfileMenuItem(
+    IconData icon,
+    String title,
+    VoidCallback onTap,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -1267,7 +1505,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontFamily: 'DM Sans',
           ),
         ),
-        trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Color(0xFF164C55)),
+        trailing: const Icon(
+          Icons.arrow_forward_ios_rounded,
+          size: 16,
+          color: Color(0xFF164C55),
+        ),
         onTap: onTap,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),

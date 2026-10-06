@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../../core/theme/app_colors.dart';
 
 class AdminProfileScreen extends StatefulWidget {
@@ -22,11 +23,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              AppColors.coconutCream,
-              AppColors.softPink,
-              Colors.white,
-            ],
+            colors: [AppColors.coconutCream, AppColors.softPink, Colors.white],
           ),
         ),
         child: SafeArea(
@@ -68,29 +65,49 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                         const CircleAvatar(
                           radius: 40,
                           backgroundColor: AppColors.softPink,
-                          backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=5'),
+                          backgroundImage: NetworkImage(
+                            'https://i.pravatar.cc/150?img=5',
+                          ),
                         ),
                         const SizedBox(height: 12),
                         Text(
                           adminName,
-                          style: GoogleFonts.fredoka(fontSize: 18, color: AppColors.deepTeal),
+                          style: GoogleFonts.fredoka(
+                            fontSize: 18,
+                            color: AppColors.deepTeal,
+                          ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           adminEmail,
-                          style: GoogleFonts.dmSans(fontSize: 13, color: AppColors.greyText),
+                          style: GoogleFonts.dmSans(
+                            fontSize: 13,
+                            color: AppColors.greyText,
+                          ),
                         ),
                         const SizedBox(height: 16),
                         OutlinedButton(
                           onPressed: () {
-                            _showEditProfileDialog(context); // Tombol Edit Profile Berfungsi Aktif
+                            _showEditProfileDialog(
+                              context,
+                            ); // Tombol Edit Profile Berfungsi Aktif
                           },
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.deepTeal,
-                            side: const BorderSide(color: AppColors.deepTeal, width: 1.5),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                            side: const BorderSide(
+                              color: AppColors.deepTeal,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(999),
+                            ),
                           ),
-                          child: Text("Edit Profile", style: GoogleFonts.dmSans(fontWeight: FontWeight.bold)),
+                          child: Text(
+                            "Edit Profile",
+                            style: GoogleFonts.dmSans(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -129,6 +146,19 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                             _showNotificationDialog(context);
                           },
                         ),
+                        _buildDivider(),
+                        _buildMenuTile(
+                          context,
+                          icon: Icons.person_outline_rounded,
+                          title: "Switch to Customer Mode",
+                          onTap: () {
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              '/home',
+                              (route) => false,
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -143,7 +173,13 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                         _showLogoutDialog(context);
                       },
                       icon: const Icon(Icons.logout_rounded, size: 18),
-                      label: Text("Log Out", style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, fontSize: 15)),
+                      label: Text(
+                        "Log Out",
+                        style: GoogleFonts.dmSans(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.coral,
                         foregroundColor: Colors.white,
@@ -163,7 +199,12 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
     );
   }
 
-  Widget _buildMenuTile(BuildContext context, {required IconData icon, required String title, required VoidCallback onTap}) {
+  Widget _buildMenuTile(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
@@ -173,14 +214,31 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
         ),
         child: Icon(icon, color: AppColors.deepTeal, size: 20),
       ),
-      title: Text(title, style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, color: AppColors.deepTeal, fontSize: 14)),
-      trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.greyText),
+      title: Text(
+        title,
+        style: GoogleFonts.dmSans(
+          fontWeight: FontWeight.bold,
+          color: AppColors.deepTeal,
+          fontSize: 14,
+        ),
+      ),
+      trailing: const Icon(
+        Icons.arrow_forward_ios_rounded,
+        size: 14,
+        color: AppColors.greyText,
+      ),
       onTap: onTap,
     );
   }
 
   Widget _buildDivider() {
-    return Divider(height: 1, thickness: 1, color: AppColors.deepTeal.withValues(alpha: 0.05), indent: 16, endIndent: 16);
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color: AppColors.deepTeal.withValues(alpha: 0.05),
+      indent: 16,
+      endIndent: 16,
+    );
   }
 
   // POPUP / DIALOG EDIT PROFILE YANG BERFUNGSI AKTIF
@@ -193,7 +251,10 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text("Edit Profile", style: GoogleFonts.fredoka(color: AppColors.deepTeal)),
+        title: Text(
+          "Edit Profile",
+          style: GoogleFonts.fredoka(color: AppColors.deepTeal),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -211,7 +272,13 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel", style: GoogleFonts.dmSans(color: AppColors.greyText, fontWeight: FontWeight.bold)),
+            child: Text(
+              "Cancel",
+              style: GoogleFonts.dmSans(
+                color: AppColors.greyText,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -227,9 +294,14 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.islandPink,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(999),
+              ),
             ),
-            child: Text("Save", style: GoogleFonts.dmSans(fontWeight: FontWeight.bold)),
+            child: Text(
+              "Save",
+              style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -242,12 +314,24 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text("Change Password", style: GoogleFonts.fredoka(color: AppColors.deepTeal)),
-        content: Text("Form to change your admin password will be displayed here.", style: GoogleFonts.dmSans(color: AppColors.deepTeal)),
+        title: Text(
+          "Change Password",
+          style: GoogleFonts.fredoka(color: AppColors.deepTeal),
+        ),
+        content: Text(
+          "Form to change your admin password will be displayed here.",
+          style: GoogleFonts.dmSans(color: AppColors.deepTeal),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Close", style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, color: AppColors.islandPink)),
+            child: Text(
+              "Close",
+              style: GoogleFonts.dmSans(
+                fontWeight: FontWeight.bold,
+                color: AppColors.islandPink,
+              ),
+            ),
           ),
         ],
       ),
@@ -260,12 +344,24 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text("Notification", style: GoogleFonts.fredoka(color: AppColors.deepTeal)),
-        content: Text("Push notifications for bookings and payments are currently active.", style: GoogleFonts.dmSans(color: AppColors.deepTeal)),
+        title: Text(
+          "Notification",
+          style: GoogleFonts.fredoka(color: AppColors.deepTeal),
+        ),
+        content: Text(
+          "Push notifications for bookings and payments are currently active.",
+          style: GoogleFonts.dmSans(color: AppColors.deepTeal),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("OK", style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, color: AppColors.islandPink)),
+            child: Text(
+              "OK",
+              style: GoogleFonts.dmSans(
+                fontWeight: FontWeight.bold,
+                color: AppColors.islandPink,
+              ),
+            ),
           ),
         ],
       ),
@@ -278,27 +374,46 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text("Log Out", style: GoogleFonts.fredoka(color: AppColors.deepTeal)),
-        content: Text("Are you sure you want to exit the admin portal?", style: GoogleFonts.dmSans(color: AppColors.deepTeal)),
+        title: Text(
+          "Log Out",
+          style: GoogleFonts.fredoka(color: AppColors.deepTeal),
+        ),
+        content: Text(
+          "Are you sure you want to exit the admin portal?",
+          style: GoogleFonts.dmSans(color: AppColors.deepTeal),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel", style: GoogleFonts.dmSans(color: AppColors.greyText, fontWeight: FontWeight.bold)),
+            child: Text(
+              "Cancel",
+              style: GoogleFonts.dmSans(
+                color: AppColors.greyText,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Berhasil keluar dari Admin Portal')),
+                const SnackBar(
+                  content: Text('Berhasil keluar dari Admin Portal'),
+                ),
               );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.coral,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(999),
+              ),
             ),
-            child: Text("Log Out", style: GoogleFonts.dmSans(fontWeight: FontWeight.bold)),
+            child: Text(
+              "Log Out",
+              style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),

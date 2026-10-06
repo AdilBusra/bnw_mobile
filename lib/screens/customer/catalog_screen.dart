@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/trip_model.dart';
+import '../../models/trip_model.dart';
 
 class CatalogScreen extends StatefulWidget {
   final bool isEmbedded;

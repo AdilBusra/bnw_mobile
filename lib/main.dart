@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'core/theme/app_theme.dart'; // Import tema global kita
 import 'screens/admin/admin_dashboard_screen.dart'; // Halaman awal Admin Dashboard
-import 'core/theme.dart';
+import 'core/theme/theme.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
-import 'screens/home/home_screen.dart';
-import 'screens/trip/trip_detail_screen.dart';
-import 'screens/trip/booking_screen.dart';
+import 'screens/customer/home_screen.dart';
+import 'screens/customer/trip_detail_screen.dart';
+import 'screens/customer/booking_screen.dart';
 
 void main() {
   runApp(const BNWMobileApp());
