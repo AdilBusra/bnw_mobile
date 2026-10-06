@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bnw_mobile/main.dart';
-import 'package:bnw_mobile/screens/catalog_screen.dart';
-import 'package:bnw_mobile/screens/profile_screen.dart';
+import 'package:bnw_mobile/screens/customer/catalog_screen.dart';
+import 'package:bnw_mobile/screens/customer/profile_screen.dart';
 
 void main() {
   testWidgets('Bottom navigation switches between Home, Catalog, and Profile',

@@ -57,6 +57,16 @@ class ProfileScreen extends StatelessWidget {
             subtitle: 'Hubungi Customer Support kami 24/7',
             onTap: () => _showNotice(context, 'Pusat Bantuan'),
           ),
+          const SizedBox(height: 10),
+          _buildMenuItem(
+            context,
+            icon: Icons.admin_panel_settings_outlined,
+            title: 'Switch to Admin Portal',
+            subtitle: 'Alihkan ke halaman pengelola & dashboard',
+            onTap: () {
+              Navigator.pushNamed(context, '/admin');
+            },
+          ),
           const SizedBox(height: 20),
           _buildLogoutButton(context),
           const SizedBox(height: 16),
@@ -79,10 +89,7 @@ class ProfileScreen extends StatelessWidget {
       return content;
     }
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFFEFBEA),
-      body: content,
-    );
+    return Scaffold(backgroundColor: const Color(0xFFFEFBEA), body: content);
   }
 
   // Header Judul Screen
@@ -123,16 +130,15 @@ class ProfileScreen extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF3E3E3E), width: 2.5),
+                  border: Border.all(
+                    color: const Color(0xFF3E3E3E),
+                    width: 2.5,
+                  ),
                 ),
                 child: const CircleAvatar(
                   radius: 34,
                   backgroundColor: Color(0xFFA3EDEE),
-                  child: Icon(
-                    Icons.person,
-                    size: 40,
-                    color: Color(0xFF3E3E3E),
-                  ),
+                  child: Icon(Icons.person, size: 40, color: Color(0xFF3E3E3E)),
                 ),
               ),
               Positioned(
@@ -143,13 +149,12 @@ class ProfileScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: const Color(0xFFFE4E7D),
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFF3E3E3E), width: 1.5),
+                    border: Border.all(
+                      color: const Color(0xFF3E3E3E),
+                      width: 1.5,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.edit,
-                    size: 13,
-                    color: Colors.white,
-                  ),
+                  child: const Icon(Icons.edit, size: 13, color: Colors.white),
                 ),
               ),
             ],
@@ -180,11 +185,17 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 // Member Badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFA3EDEE),
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: const Color(0xFF3E3E3E), width: 1),
+                    border: Border.all(
+                      color: const Color(0xFF3E3E3E),
+                      width: 1,
+                    ),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
@@ -218,12 +229,22 @@ class ProfileScreen extends StatelessWidget {
         const SizedBox(width: 10),
         _buildStatItem('14', 'Wishlist', Colors.white),
         const SizedBox(width: 10),
-        _buildStatItem('2.450', 'Poin BNW', const Color(0xFFFE4E7D), textColor: Colors.white),
+        _buildStatItem(
+          '2.450',
+          'Poin BNW',
+          const Color(0xFFFE4E7D),
+          textColor: Colors.white,
+        ),
       ],
     );
   }
 
-  Widget _buildStatItem(String count, String label, Color bgColor, {Color textColor = const Color(0xFF3E3E3E)}) {
+  Widget _buildStatItem(
+    String count,
+    String label,
+    Color bgColor, {
+    Color textColor = const Color(0xFF3E3E3E),
+  }) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
@@ -251,7 +272,9 @@ class ProfileScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: textColor == Colors.white ? Colors.white : const Color(0xFF3E3E3E),
+                color: textColor == Colors.white
+                    ? Colors.white
+                    : const Color(0xFF3E3E3E),
               ),
             ),
           ],
@@ -295,7 +318,10 @@ class ProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         child: ListTile(
           onTap: onTap,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 2,
+          ),
           leading: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -379,7 +405,10 @@ class ProfileScreen extends StatelessWidget {
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
-                    side: const BorderSide(color: Color(0xFF3E3E3E), width: 1.5),
+                    side: const BorderSide(
+                      color: Color(0xFF3E3E3E),
+                      width: 1.5,
+                    ),
                   ),
                 ),
                 child: const Text(

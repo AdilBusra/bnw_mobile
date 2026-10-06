@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bnw_mobile/screens/splash_screen.dart';
-import 'package:bnw_mobile/screens/home_screen.dart';
+import 'package:bnw_mobile/screens/customer/splash_screen.dart';
+import 'package:bnw_mobile/screens/customer/home_screen.dart';
 
 void main() {
   testWidgets('SplashScreen displays logo container, title, and navigates to HomeScreen',

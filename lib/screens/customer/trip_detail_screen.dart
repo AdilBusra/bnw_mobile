@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../home/saved_screen.dart';
+import 'saved_screen.dart';
 
 class TripDetailScreen extends StatefulWidget {
   const TripDetailScreen({super.key});
