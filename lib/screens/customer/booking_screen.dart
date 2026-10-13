@@ -50,7 +50,7 @@ class _BookingScreenState extends State<BookingScreen> {
     final trip = (ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?) ?? {
       'title': 'Sipolha Peak Sunrise',
       'location': 'Sipolha, Simalungun',
-      'price': 'Rp 350k',
+      'price': 'Rp 350.000',
       'rating': '4.9',
       'image': 'assets/images/sipolha1.png',
     };
@@ -70,7 +70,6 @@ class _BookingScreenState extends State<BookingScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // APP BAR MANUAL DENGAN JARAK AMAN
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
                 child: Row(
@@ -96,15 +95,12 @@ class _BookingScreenState extends State<BookingScreen> {
                   ],
                 ),
               ),
-
-              // KONTEN UTAMA
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // KARTU RINGKASAN TRIP
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -160,9 +156,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-
-                      // KATEGORI TRIP
-                      Text('Trip Category 🧭', style: theme.textTheme.displayMedium?.copyWith(fontSize: 18)),
+                      Text('Trip Category 🌺', style: theme.textTheme.displayMedium?.copyWith(fontSize: 18)),
                       const SizedBox(height: 10),
                       DropdownButtonFormField<String>(
                         value: _selectedTripType,
@@ -188,9 +182,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
-
-                      // TANGGAL (JIKA OPEN TRIP TANGGAL FIX, LAINNYA BISA DIKLIK PILIH TANGGAL)
-                      Text('Trip Date 📅', style: theme.textTheme.displayMedium?.copyWith(fontSize: 18)),
+                      Text('Trip Date 🗓️', style: theme.textTheme.displayMedium?.copyWith(fontSize: 18)),
                       const SizedBox(height: 10),
                       GestureDetector(
                         onTap: () {
@@ -231,8 +223,6 @@ class _BookingScreenState extends State<BookingScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-
-                      // DETAIL PERSONAL
                       Text('Personal Details 👤', style: theme.textTheme.displayMedium?.copyWith(fontSize: 18)),
                       const SizedBox(height: 10),
                       TextFormField(
@@ -258,8 +248,6 @@ class _BookingScreenState extends State<BookingScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-
-                      // JUMLAH PESERTA
                       Text('Number of Participants 👥', style: theme.textTheme.displayMedium?.copyWith(fontSize: 18)),
                       const SizedBox(height: 10),
                       Container(
@@ -294,8 +282,6 @@ class _BookingScreenState extends State<BookingScreen> {
                         ),
                       ),
                       const SizedBox(height: 40),
-
-                      // TOMBOL CONFIRM & PAY
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -306,22 +292,11 @@ class _BookingScreenState extends State<BookingScreen> {
                             shadowColor: const Color(0xFFF5427D).withOpacity(0.5),
                           ),
                           onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                                title: const Text('Booking Successful! 🎉'),
-                                content: Text('Thank you, ${_nameController.text}! Your trip to ${trip['title']} for $_guestCount participant(s) has been booked successfully.'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-                                    },
-                                    child: const Text('Awesome', style: TextStyle(color: Color(0xFFF5427D))),
-                                  ),
-                                ],
-                              ),
+                            // Mengarahkan ke Screen Upload Bukti Pembayaran
+                            Navigator.pushNamed(
+                              context,
+                              '/upload_payment',
+                              arguments: trip,
                             );
                           },
                           child: const Text('Confirm & Pay'),
