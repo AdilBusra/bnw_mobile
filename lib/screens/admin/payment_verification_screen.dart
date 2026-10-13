@@ -1,175 +1,122 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../core/admin/admin_models.dart';
+import '../../core/admin/admin_store.dart';
 import '../../core/theme/app_colors.dart';
+import '../../widgets/admin/admin_ui.dart';
+import '../../widgets/admin/booking_summary.dart';
+import 'booking_detail_screen.dart';
 
-class PaymentVerificationScreen extends StatelessWidget {
-  const PaymentVerificationScreen({super.key});
-
+class PaymentVerificationScreen extends StatefulWidget {
+  final String title;
+  const PaymentVerificationScreen({super.key, this.title = 'Payment Verification'});
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.coconutCream,
-              AppColors.softPink,
-              Colors.white,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              iconTheme: const IconThemeData(color: AppColors.deepTeal),
-              title: Text(
-                "Payment Verification",
-                style: GoogleFonts.fredoka(
-                  color: AppColors.deepTeal,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // CARD BUKTI TRANSFER
-                  Container(
-                    width: double.infinity,
-                    height: 220,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.deepTeal.withValues(alpha: 0.06),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.receipt_long_rounded, color: AppColors.islandPink, size: 56),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Slip Transfer / Bukti Bayar",
-                          style: GoogleFonts.plusJakartaSans(color: AppColors.deepTeal, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "Tap to preview image",
-                          style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppColors.greyText),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+  State<PaymentVerificationScreen> createState() => _PaymentVerificationScreenState();
+}
+class _PaymentVerificationScreenState extends State<PaymentVerificationScreen> {
+  String _query = '';
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(listenable: AdminStore.instance,
+    builder: (context, _) => DefaultTabController(length: 3,
+      child: AdminPage(title: widget.title, body: Column(children: [
+        Padding(padding: const EdgeInsets.all(16), child: AdminSearch(hint: 'Cari customer, ID atau nama trip', value: _query,
+            onChanged: (v) => setState(() => _query = v))),
+        const TabBar(isScrollable: true, tabAlignment: TabAlignment.start,
+            tabs: [Tab(text: 'Need Verify'), Tab(text: 'Verified'), Tab(text: 'Rejected')]),
+        Expanded(child: TabBarView(children: PaymentStatus.values.map((status) {
+          final bookings = AdminStore.instance.searchBookings(_query, status: status);
+          return ListView(padding: const EdgeInsets.all(20), children: [
+            Text('${bookings.length} pembayaran • ${status.label}'), const SizedBox(height: 16),
+            if (bookings.isEmpty) const EmptyState(title: 'Tidak ada pembayaran', message: 'Daftar ini akan menampilkan pembayaran sesuai status dan pencarian.'),
+            ...bookings.map((b) => BookingCard(booking: b,
+                onTap: () => openAdmin(context, PaymentDetailScreen(bookingId: b.id)))),
+            const SizedBox(height: 16),
+          ]);
+        }).toList())),
+      ])),
+    ),
+  );
+}
 
-                  // DETAIL TRANSAKSI
-                  Text("Transaction Details", style: GoogleFonts.fredoka(fontSize: 18, color: AppColors.deepTeal)),
-                  const SizedBox(height: 12),
-
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.deepTeal.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        _buildDetailRow("Booking ID", "BK-9921"),
-                        _buildDetailRow("Customer Name", "Sarah Jenkins"),
-                        _buildDetailRow("Trip Package", "Bali Summer Getaway"),
-                        _buildDetailRow("Amount Paid", "Rp 2.500.000"),
-                        _buildDetailRow("Bank Account", "BCA - 1234567890"),
-                        _buildDetailRow("Status", "Pending Review"),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // TOMBOL AKSI (REJECT & APPROVE)
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SizedBox(
-                          height: 52,
-                          child: OutlinedButton(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Pembayaran ditolak.')),
-                              );
-                              Navigator.pop(context);
-                            },
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.coral,
-                              side: const BorderSide(color: AppColors.coral, width: 1.5),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-                            ),
-                            child: Text("Reject", style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: SizedBox(
-                          height: 52,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Pembayaran berhasil diverifikasi!')),
-                              );
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.lagoonAqua,
-                              foregroundColor: AppColors.deepTeal,
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-                            ),
-                            child: Text("Approve", style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+class PaymentDetailScreen extends StatefulWidget {
+  final String bookingId;
+  const PaymentDetailScreen({super.key, required this.bookingId});
+  @override
+  State<PaymentDetailScreen> createState() => _PaymentDetailScreenState();
+}
+class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
+  bool _saving = false;
+  Future<void> _review(PaymentStatus status) async {
+    String? note;
+    if (status == PaymentStatus.rejected) {
+      note = await showDialog<String>(context: context,
+          builder: (_) => const _RejectPaymentDialog());
+      if (note == null) return;
+    } else {
+      if (!await confirmAction(context, title: 'Approve pembayaran?',
+          message: 'Pastikan nominal dan bukti pembayaran sudah sesuai. Pesanan ini akan menjadi Approved.', confirmLabel: 'Approve')) return;
+    }
+    if (!mounted) return;
+    setState(() => _saving = true);
+    try {
+      await AdminStore.instance.reviewPayment(widget.bookingId, status, note: note);
+      if (!mounted) return;
+      notice(context, status == PaymentStatus.verified ? 'Pembayaran berhasil diverifikasi.' : 'Pembayaran ditolak; kuota diperbarui.');
+    } catch (error) {
+      if (mounted) notice(context, friendlyError(error));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(listenable: AdminStore.instance,
+    builder: (context, _) {
+      final booking = AdminStore.instance.bookingById(widget.bookingId);
+      return AdminPage(title: 'Detail Pembayaran', body: booking == null
+          ? const EmptyState(title: 'Pembayaran tidak ditemukan', message: 'Kembali ke daftar pembayaran.')
+          : ListView(padding: const EdgeInsets.all(20), children: [
+        BookingSummary(booking: booking),
+        if (booking.paymentStatus == PaymentStatus.pending) ...[
+          if (_saving) const LinearProgressIndicator(),
+          const SizedBox(height: 12),
+          // Wrap allows buttons and their labels to grow at large text sizes.
+          Wrap(spacing: 12, runSpacing: 12, children: [
+            OutlinedButton.icon(onPressed: _saving ? null : () => _review(PaymentStatus.rejected),
+                icon: const Icon(Icons.close), label: const Text('Reject')),
+            FilledButton.icon(onPressed: _saving ? null : () => _review(PaymentStatus.verified),
+                style: FilledButton.styleFrom(backgroundColor: AppColors.lagoonAqua, foregroundColor: AppColors.deepTeal),
+                icon: const Icon(Icons.check), label: const Text('Approve')),
+          ]),
+        ] else TextButton.icon(onPressed: () => openAdmin(context, BookingDetailScreen(bookingId: booking.id)),
+            icon: const Icon(Icons.receipt_long_outlined), label: const Text('Lihat Booking Detail')),
+        const SizedBox(height: 32),
+      ]),
+      );
+    },
+  );
+}
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        // Diperbaiki menjadi spaceBetween yang benar
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: GoogleFonts.plusJakartaSans(color: AppColors.greyText, fontSize: 13)),
-          Text(value, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, color: AppColors.deepTeal, fontSize: 13)),
-        ],
-      ),
-    );
-  }
+class _RejectPaymentDialog extends StatefulWidget {
+  const _RejectPaymentDialog();
+  @override
+  State<_RejectPaymentDialog> createState() => _RejectPaymentDialogState();
+}
+class _RejectPaymentDialogState extends State<_RejectPaymentDialog> {
+  final _controller = TextEditingController();
+  final _key = GlobalKey<FormState>();
+  @override
+  void dispose() { _controller.dispose(); super.dispose(); }
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Tolak pembayaran'),
+    content: SingleChildScrollView(child: Form(key: _key, child: TextFormField(
+        controller: _controller, maxLines: 3,
+        decoration: const InputDecoration(labelText: 'Alasan penolakan'),
+        validator: (v) => v == null || v.trim().isEmpty ? 'Alasan wajib diisi' : null))),
+    actions: [
+      TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+      FilledButton(onPressed: () {
+        if (_key.currentState!.validate()) Navigator.pop(context, _controller.text.trim());
+      }, child: const Text('Reject')),
+    ],
+  );
 }

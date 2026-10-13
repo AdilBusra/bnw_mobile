@@ -1,418 +1,705 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-
+import '../../core/admin/admin_store.dart';
 import '../../core/theme/app_colors.dart';
+import '../../widgets/admin/admin_ui.dart';
+import 'booking_list_screen.dart';
+import 'payment_verification_screen.dart';
+import 'notifications_screen.dart';
 
-class AdminProfileScreen extends StatefulWidget {
-  const AdminProfileScreen({super.key});
-
-  @override
-  State<AdminProfileScreen> createState() => _AdminProfileScreenState();
+BoxDecoration _profileBox({
+  Color color = AppColors.white,
+  double radius = 24,
+  bool shadow = false,
+}) {
+  return BoxDecoration(
+    color: color,
+    borderRadius: BorderRadius.circular(radius),
+    boxShadow: shadow
+        ? [
+      BoxShadow(
+        color: AppColors.deepTeal.withValues(alpha: 0.08),
+        blurRadius: 24,
+        offset: const Offset(0, 10),
+      ),
+    ]
+        : null,
+  );
 }
 
-class _AdminProfileScreenState extends State<AdminProfileScreen> {
-  // State untuk data profil agar bisa diubah melalui Edit Profile
-  String adminName = "Sarah Administrator";
-  String adminEmail = "sarah.admin@beyondwanders.com";
+class AdminProfileScreen extends StatelessWidget {
+  final bool embedded;
+
+  const AdminProfileScreen({
+    super.key,
+    this.embedded = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppColors.coconutCream, AppColors.softPink, Colors.white],
-          ),
-        ),
-        child: SafeArea(
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              iconTheme: const IconThemeData(color: AppColors.deepTeal),
-              title: Text(
-                "Admin Profile",
-                style: GoogleFonts.fredoka(
-                  color: AppColors.deepTeal,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+    return ListenableBuilder(
+      listenable: AdminStore.instance,
+      builder: (context, _) {
+        final store = AdminStore.instance;
+
+        return AdminPage(
+          title: 'Admin Profile',
+          embedded: embedded,
+          body: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: _profileBox(
+                  radius: 28,
+                  shadow: true,
                 ),
-              ),
-            ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  // FOTO & INFO PROFIL UTAMA
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.deepTeal.withValues(alpha: 0.06),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
+                child: Row(
+                  children: [
+                    Tooltip(
+                      message: 'Edit foto dan profil',
+                      child: InkWell(
+                        onTap: () => openAdmin(
+                          context,
+                          const EditAdminProfileScreen(),
                         ),
-                      ],
+                        borderRadius: BorderRadius.circular(50),
+                        child: Stack(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColors.white,
+                                border: Border.all(
+                                  color: AppColors.islandPink,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: const AdminAvatar(radius: 32),
+                            ),
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: AppColors.islandPink,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: AppColors.white,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.edit,
+                                  color: AppColors.white,
+                                  size: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    child: Column(
-                      children: [
-                        const CircleAvatar(
-                          radius: 40,
-                          backgroundColor: AppColors.softPink,
-                          backgroundImage: NetworkImage(
-                            'https://i.pravatar.cc/150?img=5',
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          adminName,
-                          style: GoogleFonts.fredoka(
-                            fontSize: 18,
-                            color: AppColors.deepTeal,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          adminEmail,
-                          style: GoogleFonts.dmSans(
-                            fontSize: 13,
-                            color: AppColors.greyText,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        OutlinedButton(
-                          onPressed: () {
-                            _showEditProfileDialog(
-                              context,
-                            ); // Tombol Edit Profile Berfungsi Aktif
-                          },
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.deepTeal,
-                            side: const BorderSide(
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            store.profile.name,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
                               color: AppColors.deepTeal,
-                              width: 1.5,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                          ),
-                          child: Text(
-                            "Edit Profile",
-                            style: GoogleFonts.dmSans(
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // MENU PENGATURAN (Theme & Help dihapus, Notification disederhanakan)
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.deepTeal.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        _buildMenuTile(
-                          context,
-                          icon: Icons.lock_outline_rounded,
-                          title: "Change Password",
-                          onTap: () {
-                            _showPasswordDialog(context);
-                          },
-                        ),
-                        _buildDivider(),
-                        _buildMenuTile(
-                          context,
-                          icon: Icons.notifications_outlined,
-                          title: "Notification", // Disederhanakan dari Notification Settings
-                          onTap: () {
-                            _showNotificationDialog(context);
-                          },
-                        ),
-                        _buildDivider(),
-                        _buildMenuTile(
-                          context,
-                          icon: Icons.person_outline_rounded,
-                          title: "Switch to Customer Mode",
-                          onTap: () {
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              '/home',
-                              (route) => false,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // TOMBOL LOG OUT
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        _showLogoutDialog(context);
-                      },
-                      icon: const Icon(Icons.logout_rounded, size: 18),
-                      label: Text(
-                        "Log Out",
-                        style: GoogleFonts.dmSans(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.coral,
-                        foregroundColor: Colors.white,
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(999),
-                        ),
+                          const SizedBox(height: 4),
+                          Text(
+                            store.profile.email,
+                            style: const TextStyle(
+                              color: AppColors.deepTeal,
+                              fontSize: 11,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.softPink,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text(
+                              'Super Admin',
+                              style: TextStyle(
+                                color: AppColors.islandPink,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMenuTile(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: AppColors.coconutCream,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: AppColors.deepTeal, size: 20),
-      ),
-      title: Text(
-        title,
-        style: GoogleFonts.dmSans(
-          fontWeight: FontWeight.bold,
-          color: AppColors.deepTeal,
-          fontSize: 14,
-        ),
-      ),
-      trailing: const Icon(
-        Icons.arrow_forward_ios_rounded,
-        size: 14,
-        color: AppColors.greyText,
-      ),
-      onTap: onTap,
-    );
-  }
-
-  Widget _buildDivider() {
-    return Divider(
-      height: 1,
-      thickness: 1,
-      color: AppColors.deepTeal.withValues(alpha: 0.05),
-      indent: 16,
-      endIndent: 16,
-    );
-  }
-
-  // POPUP / DIALOG EDIT PROFILE YANG BERFUNGSI AKTIF
-  void _showEditProfileDialog(BuildContext context) {
-    final nameController = TextEditingController(text: adminName);
-    final emailController = TextEditingController(text: adminEmail);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          "Edit Profile",
-          style: GoogleFonts.fredoka(color: AppColors.deepTeal),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: "Admin Name"),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: "Email Address"),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              "Cancel",
-              style: GoogleFonts.dmSans(
-                color: AppColors.greyText,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                adminName = nameController.text;
-                adminEmail = emailController.text;
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profil berhasil diperbarui!')),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.islandPink,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(999),
-              ),
-            ),
-            child: Text(
-              "Save",
-              style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showPasswordDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          "Change Password",
-          style: GoogleFonts.fredoka(color: AppColors.deepTeal),
-        ),
-        content: Text(
-          "Form to change your admin password will be displayed here.",
-          style: GoogleFonts.dmSans(color: AppColors.deepTeal),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              "Close",
-              style: GoogleFonts.dmSans(
-                fontWeight: FontWeight.bold,
-                color: AppColors.islandPink,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showNotificationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          "Notification",
-          style: GoogleFonts.fredoka(color: AppColors.deepTeal),
-        ),
-        content: Text(
-          "Push notifications for bookings and payments are currently active.",
-          style: GoogleFonts.dmSans(color: AppColors.deepTeal),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              "OK",
-              style: GoogleFonts.dmSans(
-                fontWeight: FontWeight.bold,
-                color: AppColors.islandPink,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          "Log Out",
-          style: GoogleFonts.fredoka(color: AppColors.deepTeal),
-        ),
-        content: Text(
-          "Are you sure you want to exit the admin portal?",
-          style: GoogleFonts.dmSans(color: AppColors.deepTeal),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              "Cancel",
-              style: GoogleFonts.dmSans(
-                color: AppColors.greyText,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Berhasil keluar dari Admin Portal'),
+                  ],
                 ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.coral,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(999),
+              ),
+              const SizedBox(height: 20),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final singleColumn = constraints.maxWidth < 280 ||
+                      MediaQuery.textScalerOf(context).scale(1) > 1.4;
+
+                  final width = singleColumn
+                      ? constraints.maxWidth
+                      : (constraints.maxWidth - 20) / 3;
+
+                  return Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      SizedBox(
+                        width: width,
+                        child: _stat(
+                          '${store.trips.length}',
+                          'Trips',
+                          AppColors.seafoam,
+                        ),
+                      ),
+                      SizedBox(
+                        width: width,
+                        child: _stat(
+                          '${store.bookings.length}',
+                          'Bookings',
+                          AppColors.white,
+                        ),
+                      ),
+                      SizedBox(
+                        width: width,
+                        child: _stat(
+                          '${store.pendingPayments.length}',
+                          'Need Verify',
+                          AppColors.softPink,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
+              _sectionTitle('Aktivitas & Transaksi'),
+              const SizedBox(height: 12),
+              _menu(
+                context,
+                Icons.receipt_long_rounded,
+                'Riwayat Pemesanan',
+                'Status dan detail pesanan customer',
+                const BookingListScreen(),
+              ),
+              _menu(
+                context,
+                Icons.account_balance_wallet_outlined,
+                'Verifikasi Pembayaran',
+                'Daftar pending, verified, dan rejected',
+                const PaymentVerificationScreen(),
+              ),
+              const SizedBox(height: 14),
+              _sectionTitle('Pengaturan Akun'),
+              const SizedBox(height: 12),
+              _menu(
+                context,
+                Icons.person_outline,
+                'Edit Profile',
+                'Ubah nama, email, dan foto profil',
+                const EditAdminProfileScreen(),
+              ),
+              _menu(
+                context,
+                Icons.lock_outline,
+                'Change Password',
+                'Ganti password akun admin',
+                const ChangeAdminPasswordScreen(),
+              ),
+              _menu(
+                context,
+                Icons.notifications_outlined,
+                'Notifikasi',
+                'Pembayaran pending dan peringatan kuota',
+                const NotificationsScreen(),
+              ),
+              const SizedBox(height: 20),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: AppColors.coconutCream,
+                  foregroundColor: AppColors.islandPink,
+                  side: const BorderSide(
+                    color: AppColors.islandPink,
+                    width: 1.3,
+                  ),
+                  minimumSize: const Size(double.infinity, 48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                ),
+                onPressed: () async {
+                  final confirmed = await confirmAction(
+                    context,
+                    title: 'Log Out?',
+                    message: 'Keluar dari akun admin?',
+                    confirmLabel: 'Log Out',
+                  );
+
+                  if (!confirmed || !context.mounted) return;
+
+                  store.logout();
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/admin-login',
+                        (_) => false,
+                  );
+                },
+                icon: const Icon(Icons.logout, size: 18),
+                label: const Text('Log Out'),
+              ),
+              const SizedBox(height: 24),
+              Center(
+                child: Text(
+                  'Beyond & Wanders Mobile v1.1.0',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.deepTeal.withValues(alpha: 0.65),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _sectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        color: AppColors.deepTeal,
+        fontSize: 15,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget _stat(String count, String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 16,
+      ),
+      decoration: _profileBox(color: color, radius: 20),
+      child: Column(
+        children: [
+          Text(
+            count,
+            style: const TextStyle(
+              color: AppColors.deepTeal,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: AppColors.deepTeal,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _menu(
+      BuildContext context,
+      IconData icon,
+      String title,
+      String subtitle,
+      Widget page,
+      ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(22),
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          onTap: () => openAdmin(context, page),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 6,
+          ),
+          leading: Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: AppColors.softPink.withValues(alpha: 0.5),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: AppColors.islandPink,
+              size: 20,
+            ),
+          ),
+          title: Text(
+            title,
+            style: const TextStyle(
+              color: AppColors.deepTeal,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: Text(
+              subtitle,
+              style: TextStyle(
+                color: AppColors.deepTeal.withValues(alpha: 0.65),
+                fontSize: 11,
               ),
             ),
-            child: Text(
-              "Log Out",
-              style: GoogleFonts.dmSans(fontWeight: FontWeight.bold),
+          ),
+          trailing: const Icon(
+            Icons.chevron_right,
+            color: AppColors.deepTeal,
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class EditAdminProfileScreen extends StatefulWidget {
+  const EditAdminProfileScreen({super.key});
+
+  @override
+  State<EditAdminProfileScreen> createState() =>
+      _EditAdminProfileScreenState();
+}
+
+class _EditAdminProfileScreenState extends State<EditAdminProfileScreen> {
+  final _key = GlobalKey<FormState>();
+  late final TextEditingController _name, _email;
+  String? _photo;
+  bool _saving = false, _picking = false, _removePhoto = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final profile = AdminStore.instance.profile;
+    _name = TextEditingController(text: profile.name);
+    _email = TextEditingController(text: profile.email);
+    _photo = profile.photoBase64;
+  }
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _email.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pick() async {
+    setState(() => _picking = true);
+    try {
+      final photo = await pickPhoto();
+      if (mounted && photo != null) {
+        setState(() {
+          _photo = photo;
+          _removePhoto = false;
+        });
+      }
+    } catch (error) {
+      if (mounted) {
+        notice(
+          context,
+          error is ArgumentError
+              ? friendlyError(error)
+              : 'Gagal membuka galeri. Periksa izin foto aplikasi.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _picking = false);
+    }
+  }
+
+  Future<void> _save() async {
+    if (!_key.currentState!.validate()) return;
+    setState(() => _saving = true);
+    try {
+      await AdminStore.instance.updateProfile(
+        _name.text,
+        _email.text,
+        photoBase64: _photo,
+        removePhoto: _removePhoto,
+      );
+      if (!mounted) return;
+      notice(context, 'Profil berhasil diperbarui.');
+      Navigator.pop(context);
+    } catch (error) {
+      if (mounted) notice(context, friendlyError(error));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AdminPage(
+      title: 'Edit Profile',
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          Form(
+            key: _key,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundColor: AppColors.lagoonAqua,
+                    backgroundImage: _photo == null
+                        ? null
+                        : MemoryImage(base64Decode(_photo!)),
+                    child: _photo == null
+                        ? const Icon(Icons.person, size: 50)
+                        : null,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 12,
+                  runSpacing: 8,
+                  children: [
+                    TextButton.icon(
+                      onPressed: _saving || _picking ? null : _pick,
+                      icon: const Icon(Icons.photo_library_outlined),
+                      label: Text(
+                        _picking ? 'Membuka galeri...' : 'Ubah Foto',
+                      ),
+                    ),
+                    if (_photo != null)
+                      TextButton(
+                        onPressed: _saving
+                            ? null
+                            : () => setState(() {
+                          _photo = null;
+                          _removePhoto = true;
+                        }),
+                        child: const Text('Hapus Foto'),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _name,
+                  enabled: !_saving,
+                  decoration: const InputDecoration(
+                    labelText: 'Full Name',
+                  ),
+                  validator: (v) => v == null || v.trim().isEmpty
+                      ? 'Nama wajib diisi'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _email,
+                  enabled: !_saving,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'Email Address',
+                  ),
+                  validator: (v) => v == null ||
+                      !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
+                          .hasMatch(v.trim())
+                      ? 'Email tidak valid'
+                      : null,
+                ),
+                const SizedBox(height: 12),
+                const Text('Email ini juga digunakan untuk login admin.'),
+                const SizedBox(height: 24),
+                if (_saving) const LinearProgressIndicator(),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    OutlinedButton(
+                      onPressed: _saving
+                          ? null
+                          : () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                    FilledButton(
+                      onPressed: _saving || _picking ? null : _save,
+                      child: Text(
+                        _saving ? 'Menyimpan...' : 'Save Profile',
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ChangeAdminPasswordScreen extends StatefulWidget {
+  const ChangeAdminPasswordScreen({super.key});
+
+  @override
+  State<ChangeAdminPasswordScreen> createState() =>
+      _ChangeAdminPasswordScreenState();
+}
+
+class _ChangeAdminPasswordScreenState
+    extends State<ChangeAdminPasswordScreen> {
+  final _key = GlobalKey<FormState>();
+  final _current = TextEditingController();
+  final _next = TextEditingController();
+  final _confirm = TextEditingController();
+  final _visible = [false, false, false];
+  bool _saving = false;
+
+  @override
+  void dispose() {
+    _current.dispose();
+    _next.dispose();
+    _confirm.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (!_key.currentState!.validate()) return;
+    setState(() => _saving = true);
+    try {
+      await AdminStore.instance.changePassword(
+        _current.text,
+        _next.text,
+        _confirm.text,
+      );
+      if (!mounted) return;
+      notice(
+        context,
+        'Password berhasil diubah. Gunakan password baru saat login berikutnya.',
+      );
+      Navigator.pop(context);
+    } catch (error) {
+      if (mounted) notice(context, friendlyError(error));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Widget _field(
+      String label,
+      TextEditingController controller,
+      int index,
+      ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        controller: controller,
+        enabled: !_saving,
+        obscureText: !_visible[index],
+        enableSuggestions: false,
+        autocorrect: false,
+        decoration: InputDecoration(
+          labelText: label,
+          suffixIcon: IconButton(
+            tooltip: _visible[index]
+                ? 'Sembunyikan password'
+                : 'Tampilkan password',
+            onPressed: () => setState(() {
+              _visible[index] = !_visible[index];
+            }),
+            icon: Icon(
+              _visible[index]
+                  ? Icons.visibility_off_outlined
+                  : Icons.visibility_outlined,
+            ),
+          ),
+        ),
+        validator: (v) {
+          if (v == null || v.isEmpty) return '$label wajib diisi';
+          if (index == 1 &&
+              (v.length < 8 ||
+                  !RegExp(r'[A-Za-z]').hasMatch(v) ||
+                  !RegExp(r'\d').hasMatch(v))) {
+            return 'Minimal 8 karakter dengan huruf dan angka';
+          }
+          if (index == 2 && v != _next.text) {
+            return 'Konfirmasi password tidak sama';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AdminPage(
+      title: 'Change Password',
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          const Text(
+            'Isi password saat ini dan password baru. Password baru minimal 8 karakter, berisi huruf dan angka.',
+          ),
+          const SizedBox(height: 20),
+          Form(
+            key: _key,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _field('Current Password', _current, 0),
+                _field('New Password', _next, 1),
+                _field('Confirm New Password', _confirm, 2),
+                if (_saving) const LinearProgressIndicator(),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    OutlinedButton(
+                      onPressed: _saving
+                          ? null
+                          : () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                    FilledButton(
+                      onPressed: _saving ? null : _save,
+                      child: Text(
+                        _saving ? 'Menyimpan...' : 'Update Password',
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
