@@ -26,6 +26,69 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     super.dispose();
   }
 
+  // Fungsionalitas Pop-up Lupa Password
+  void _showForgotPasswordDialog(BuildContext context) {
+    final TextEditingController emailController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Lupa Kata Sandi? 🔑',
+          style: TextStyle(color: Color(0xFF164C55), fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Masukkan email akunmu. Kami akan mengirimkan instruksi untuk mereset kata sandi.',
+              style: TextStyle(fontSize: 12, color: Color(0xFF164C55), height: 1.4),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(
+                hintText: 'email@domain.com',
+                filled: true,
+                fillColor: const Color(0xFFFFF7DF),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal', style: TextStyle(color: Color(0xFF164C55))),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFF5427D),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Instruksi pemulihan telah dikirim ke emailmu! 📧'),
+                  backgroundColor: Color(0xFF164C55),
+                ),
+              );
+            },
+            child: const Text('Kirim', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildFloatingEmoji(String emoji, double top, double? left, double? right, double size, double delay) {
     return Positioned(
       top: top,
@@ -67,7 +130,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     return Scaffold(
       body: Stack(
         children: [
-          // Background Pemandangan
           Positioned.fill(
             child: Opacity(
               opacity: 0.25,
@@ -77,8 +139,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               ),
             ),
           ),
-
-          // Gradasi Pink
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -93,28 +153,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               ),
             ),
           ),
-
-          // Emoji Melayang (Posisi diubah agar tidak ketutup form)
           IgnorePointer(
             child: Stack(
               children: [
-                // 🌺 Kiri Atas
                 _buildFloatingEmoji('🌺', screenHeight * 0.10, screenWidth * 0.10, null, screenWidth * 0.08, 0.0),
-                // 🥥 Kanan Atas
                 _buildFloatingEmoji('🥥', screenHeight * 0.12, null, screenWidth * 0.15, screenWidth * 0.09, 2.0),
-                // 🐚 Kanan Tengah (Diatas email)
                 _buildFloatingEmoji('🐚', screenHeight * 0.28, null, screenWidth * 0.05, screenWidth * 0.07, 4.0),
-                // ✨ Kiri Tengah (Digeser ke kiri form)
                 _buildFloatingEmoji('✨', screenHeight * 0.38, screenWidth * 0.06, null, screenWidth * 0.1, 1.0),
-                // 🍹 Kiri Bawah (Di bawah tombol login)
                 _buildFloatingEmoji('🍹', screenHeight * 0.78, screenWidth * 0.10, null, screenWidth * 0.08, 1.5),
-                // 🌴 Kanan Bawah (Digeser ke pojok kanan bawah agar tidak nabrak teks)
                 _buildFloatingEmoji('🌴', screenHeight * 0.85, null, screenWidth * 0.10, screenWidth * 0.12, 3.0),
               ],
             ),
           ),
-
-          // Form UI
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -123,17 +173,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     SizedBox(height: screenHeight * 0.02),
-
-                    // LOGO UTAMA
                     Image.asset(
                       'assets/images/logo.png',
                       height: screenHeight * 0.14,
                       fit: BoxFit.contain,
                     ),
-
                     SizedBox(height: screenHeight * 0.02),
-
-                    // JUDUL DENGAN SHADOW
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
@@ -150,9 +195,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ),
                       ),
                     ),
-
                     SizedBox(height: screenHeight * 0.01),
-
                     Text(
                       'Hi, Welcome Back!',
                       textAlign: TextAlign.center,
@@ -166,10 +209,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ],
                       ),
                     ),
-
                     SizedBox(height: screenHeight * 0.04),
-
-                    // INPUT EMAIL
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(999),
@@ -191,10 +231,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ),
                       ),
                     ),
-
                     SizedBox(height: screenHeight * 0.02),
-
-                    // INPUT PASSWORD
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(999),
@@ -217,13 +254,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ),
                       ),
                     ),
-
                     SizedBox(height: screenHeight * 0.01),
-
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () => _showForgotPasswordDialog(context), // Terhubung ke pop-up Lupa Password
                         child: Text(
                           'Forgot Password?',
                           style: theme.textTheme.bodyMedium?.copyWith(
@@ -240,25 +275,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ),
                       ),
                     ),
-
                     SizedBox(height: screenHeight * 0.02),
-
-                    // TOMBOL LOGIN
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         elevation: 8,
                         shadowColor: const Color(0xFFF5427D).withOpacity(0.5),
                       ),
                       onPressed: () {
-                        // KODE BARU: Pindah ke Home Screen
                         Navigator.pushReplacementNamed(context, '/home');
                       },
                       child: const Text('Log in'),
                     ),
-
                     SizedBox(height: screenHeight * 0.02),
-
-                    // TOMBOL GOOGLE
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(999),
@@ -283,9 +311,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         label: const Text('Continue with Google'),
                       ),
                     ),
-
                     SizedBox(height: screenHeight * 0.03),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -306,7 +332,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ),
                       ],
                     ),
-
                     SizedBox(height: screenHeight * 0.04),
                   ],
                 ),
