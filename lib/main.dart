@@ -47,6 +47,7 @@ class _BNWMobileAppState extends State<BNWMobileApp> {
         '/': (_) => const LoginScreen(), '/register': (_) => const RegisterScreen(),
         '/home': (_) => const HomeScreen(), '/detail': (_) => const TripDetailScreen(),
         '/booking': (_) => const BookingScreen(),
+        '/upload_payment': (_) => const UploadPaymentScreen(),
         '/admin-login': (_) => const AdminLoginScreen(),
         '/admin': (_) => Theme(data: AppTheme.lightTheme, child: AdminStore.instance.authenticated
             ? const AdminDashboardScreen() : const AdminLoginScreen()),
@@ -54,24 +55,3 @@ class _BNWMobileAppState extends State<BNWMobileApp> {
     );
   });
 }
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Beyond & Wanders',
-      debugShowCheckedModeBanner: false,
-      theme: IslandClubTheme.theme,
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const LoginScreen(),
-        '/register': (context) => const RegisterScreen(),
-        '/home': (context) => const HomeScreen(),
-        '/detail': (context) => const TripDetailScreen(),
-        '/booking': (context) => const BookingScreen(),
-        '/upload_payment': (context) => const UploadPaymentScreen(), // Daftarkan Rute Disini
-
-        '/admin': (context) => Theme(
-          data: AppTheme.lightTheme,
-          child: AdminDashboardScreen(),
-        ),
-      },
-    );
-  }
