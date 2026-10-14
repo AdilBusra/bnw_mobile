@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
-// Global list untuk menyimpan data wishlist yang dibagikan antar halaman
+// Harga diupdate ke format Rp xxx.xxx
 List<Map<String, dynamic>> globalSavedTrips = [
   {
     'title': 'Sipolha Peak Sunrise',
     'location': 'Sipolha, Simalungun',
-    'price': 'Rp 350k',
+    'price': 'Rp 350.000',
     'rating': '4.9',
     'image': 'assets/images/sipolha1.png',
   },
   {
     'title': 'Bukit Holbung Camp',
     'location': 'Samosir, Sumut',
-    'price': 'Rp 250k',
+    'price': 'Rp 250.000',
     'rating': '4.8',
     'image': 'assets/images/holbung.png',
   },
@@ -32,44 +32,33 @@ class _SavedScreenState extends State<SavedScreen> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
+      // FAB Chat sudah dihapus
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFFF7DF),
-              Color(0xFFFFD1DC),
-            ],
+            colors: [Color(0xFFFFF7DF), Color(0xFFFFD1DC)],
           ),
         ),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // HEADER (EMOJI DIHAPUS)
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Saved Escapes',
-                      style: theme.textTheme.displayMedium,
-                    ),
+                    Text('Saved Escapes', style: theme.textTheme.displayMedium),
                     Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
                       child: const Icon(Icons.favorite, color: Color(0xFFF5427D)),
                     ),
                   ],
                 ),
               ),
-
-              // LIST WISHLIST
               Expanded(
                 child: globalSavedTrips.isEmpty
                     ? Center(
@@ -92,23 +81,14 @@ class _SavedScreenState extends State<SavedScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
-                            blurRadius: 15,
-                            offset: const Offset(0, 5),
-                          ),
+                          BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 15, offset: const Offset(0, 5)),
                         ],
                       ),
                       child: Row(
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(16),
-                            child: Image.asset(
-                              trip['image'],
-                              width: 90,
-                              height: 90,
-                              fit: BoxFit.cover,
-                            ),
+                            child: Image.asset(trip['image'], width: 90, height: 90, fit: BoxFit.cover),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -126,7 +106,6 @@ class _SavedScreenState extends State<SavedScreen> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
-                                    // Tombol Hapus dari Saved
                                     IconButton(
                                       icon: const Icon(Icons.close, size: 18, color: Color(0xFF164C55)),
                                       onPressed: () {
@@ -142,10 +121,7 @@ class _SavedScreenState extends State<SavedScreen> {
                                   children: [
                                     const Icon(Icons.location_on_outlined, color: Color(0xFFF5427D), size: 14),
                                     const SizedBox(width: 4),
-                                    Text(
-                                      trip['location'],
-                                      style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12),
-                                    ),
+                                    Text(trip['location'], style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12)),
                                   ],
                                 ),
                                 const SizedBox(height: 12),
@@ -184,19 +160,6 @@ class _SavedScreenState extends State<SavedScreen> {
             ],
           ),
         ),
-      ),
-      // TOMBOL CHAT AI PINDAH KE HALAMAN SAVED SESUAI PERMINTAANMU
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Aksi ketika tombol chat AI ditekan
-        },
-        backgroundColor: const Color(0xFFF5427D),
-        foregroundColor: Colors.white,
-        elevation: 6,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: const Icon(Icons.chat_bubble_rounded),
       ),
     );
   }
