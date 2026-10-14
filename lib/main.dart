@@ -3,10 +3,8 @@ import 'core/admin/admin_store.dart';
 import 'core/admin/admin_storage.dart';
 import 'core/theme/app_theme.dart';
 
-import 'core/theme/app_theme.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
 import 'core/theme/theme.dart';
-import 'screens/admin/admin_dashboard_screen.dart';
 import 'screens/admin/admin_login_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
@@ -77,4 +75,3 @@ class _BNWMobileAppState extends State<BNWMobileApp> {
       },
     );
   }
-}
