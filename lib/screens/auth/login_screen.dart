@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:bnw_mobile/auth_service.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-
+ 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+  with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
+  final authService = AuthService();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -23,6 +31,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   @override
   void dispose() {
     _animationController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
     super.dispose();
   }
 
@@ -37,7 +47,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         backgroundColor: Colors.white,
         title: const Text(
           'Lupa Kata Sandi? 🔑',
-          style: TextStyle(color: Color(0xFF164C55), fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Color(0xFF164C55),
+            fontWeight: FontWeight.bold,
+          ),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -45,7 +58,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           children: [
             const Text(
               'Masukkan email akunmu. Kami akan mengirimkan instruksi untuk mereset kata sandi.',
-              style: TextStyle(fontSize: 12, color: Color(0xFF164C55), height: 1.4),
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xFF164C55),
+                height: 1.4,
+              ),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -58,7 +75,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
             ),
           ],
@@ -66,30 +86,50 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Batal', style: TextStyle(color: Color(0xFF164C55))),
+            child: const Text(
+              'Batal',
+              style: TextStyle(color: Color(0xFF164C55)),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFF5427D),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Instruksi pemulihan telah dikirim ke emailmu! 📧'),
+                  content: Text(
+                    'Instruksi pemulihan telah dikirim ke emailmu! 📧',
+                  ),
                   backgroundColor: Color(0xFF164C55),
                 ),
               );
             },
-            child: const Text('Kirim', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Kirim',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFloatingEmoji(String emoji, double top, double? left, double? right, double size, double delay) {
+  Widget _buildFloatingEmoji(
+    String emoji,
+    double top,
+    double? left,
+    double? right,
+    double size,
+    double delay,
+  ) {
     return Positioned(
       top: top,
       left: left,
@@ -97,11 +137,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       child: AnimatedBuilder(
         animation: _animationController,
         builder: (context, child) {
-          final offsetY = math.sin((_animationController.value * 2 * math.pi) + delay) * 12;
-          return Transform.translate(
-            offset: Offset(0, offsetY),
-            child: child,
-          );
+          final offsetY =
+              math.sin((_animationController.value * 2 * math.pi) + delay) * 12;
+          return Transform.translate(offset: Offset(0, offsetY), child: child);
         },
         child: Text(
           emoji,
@@ -133,10 +171,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           Positioned.fill(
             child: Opacity(
               opacity: 0.25,
-              child: Image.asset(
-                'assets/images/img.png',
-                fit: BoxFit.cover,
-              ),
+              child: Image.asset('assets/images/img.png', fit: BoxFit.cover),
             ),
           ),
           Positioned.fill(
@@ -156,12 +191,54 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           IgnorePointer(
             child: Stack(
               children: [
-                _buildFloatingEmoji('🌺', screenHeight * 0.10, screenWidth * 0.10, null, screenWidth * 0.08, 0.0),
-                _buildFloatingEmoji('🥥', screenHeight * 0.12, null, screenWidth * 0.15, screenWidth * 0.09, 2.0),
-                _buildFloatingEmoji('🐚', screenHeight * 0.28, null, screenWidth * 0.05, screenWidth * 0.07, 4.0),
-                _buildFloatingEmoji('✨', screenHeight * 0.38, screenWidth * 0.06, null, screenWidth * 0.1, 1.0),
-                _buildFloatingEmoji('🍹', screenHeight * 0.78, screenWidth * 0.10, null, screenWidth * 0.08, 1.5),
-                _buildFloatingEmoji('🌴', screenHeight * 0.85, null, screenWidth * 0.10, screenWidth * 0.12, 3.0),
+                _buildFloatingEmoji(
+                  '🌺',
+                  screenHeight * 0.10,
+                  screenWidth * 0.10,
+                  null,
+                  screenWidth * 0.08,
+                  0.0,
+                ),
+                _buildFloatingEmoji(
+                  '🥥',
+                  screenHeight * 0.12,
+                  null,
+                  screenWidth * 0.15,
+                  screenWidth * 0.09,
+                  2.0,
+                ),
+                _buildFloatingEmoji(
+                  '🐚',
+                  screenHeight * 0.28,
+                  null,
+                  screenWidth * 0.05,
+                  screenWidth * 0.07,
+                  4.0,
+                ),
+                _buildFloatingEmoji(
+                  '✨',
+                  screenHeight * 0.38,
+                  screenWidth * 0.06,
+                  null,
+                  screenWidth * 0.1,
+                  1.0,
+                ),
+                _buildFloatingEmoji(
+                  '🍹',
+                  screenHeight * 0.78,
+                  screenWidth * 0.10,
+                  null,
+                  screenWidth * 0.08,
+                  1.5,
+                ),
+                _buildFloatingEmoji(
+                  '🌴',
+                  screenHeight * 0.85,
+                  null,
+                  screenWidth * 0.10,
+                  screenWidth * 0.12,
+                  3.0,
+                ),
               ],
             ),
           ),
@@ -222,11 +299,15 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ],
                       ),
                       child: TextFormField(
+                        controller: emailController,
                         decoration: const InputDecoration(
                           hintText: 'Email Address',
                           prefixIcon: Padding(
                             padding: EdgeInsets.only(left: 20.0, right: 16.0),
-                            child: Icon(Icons.email_outlined, color: Color(0xFF164C55)),
+                            child: Icon(
+                              Icons.email_outlined,
+                              color: Color(0xFF164C55),
+                            ),
                           ),
                         ),
                       ),
@@ -244,12 +325,16 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ],
                       ),
                       child: TextFormField(
+                        controller: passwordController,
                         obscureText: true,
                         decoration: const InputDecoration(
                           hintText: 'Password',
                           prefixIcon: Padding(
                             padding: EdgeInsets.only(left: 20.0, right: 16.0),
-                            child: Icon(Icons.lock_outline, color: Color(0xFF164C55)),
+                            child: Icon(
+                              Icons.lock_outline,
+                              color: Color(0xFF164C55),
+                            ),
                           ),
                         ),
                       ),
@@ -258,7 +343,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () => _showForgotPasswordDialog(context), // Terhubung ke pop-up Lupa Password
+                        onPressed: () => _showForgotPasswordDialog(
+                          context,
+                        ), // Terhubung ke pop-up Lupa Password
                         child: Text(
                           'Forgot Password?',
                           style: theme.textTheme.bodyMedium?.copyWith(
@@ -281,10 +368,31 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         elevation: 8,
                         shadowColor: const Color(0xFFF5427D).withOpacity(0.5),
                       ),
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/home');
+                      onPressed: _isLoading ? null : () async {
+                        setState(() => _isLoading = true);
+                        
+                        String? hasil = await authService.login(
+                          emailController.text.trim(),
+                          passwordController.text.trim(),
+                        );
+                        
+                        setState(() => _isLoading = false);
+
+                        if (hasil == "Berhasil Login") {
+                          Navigator.pushReplacementNamed(context, '/home');
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(hasil ?? "Terjadi kesalahan")),
+                          );
+                        }
                       },
-                      child: const Text('Log in'),
+                      child: _isLoading 
+                          ? const SizedBox(
+                              height: 20, 
+                              width: 20, 
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                            )
+                          : const Text('Log in'),
                     ),
                     SizedBox(height: screenHeight * 0.02),
                     Container(
@@ -315,7 +423,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('New to the club?', style: theme.textTheme.bodyMedium),
+                        Text(
+                          'New to the club?',
+                          style: theme.textTheme.bodyMedium,
+                        ),
                         TextButton(
                           onPressed: () {
                             Navigator.pushNamed(context, '/register');

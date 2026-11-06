@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:bnw_mobile/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home_screen.dart'; // Import home_screen untuk mengakses HomeScreenState
 
 class ProfileScreen extends StatefulWidget {
@@ -9,9 +12,48 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String _name = 'Kayla';
-  String _email = 'kayla.bestie@beyondwanders.com';
+  String _name = 'Memuat nama...';
+  String _email = 'Memuat email...';
   String _profileImage = 'assets/images/profile.png';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    
+    if (currentUser != null) {
+      try {
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .get();
+
+        if (userDoc.exists) {
+          setState(() {
+            // Jika datanya ada, tampilkan namanya
+            _name = userDoc.get('name') ?? 'Tanpa Nama';
+            _email = userDoc.get('email') ?? currentUser.email ?? '';
+          });
+        } else {
+          setState(() {
+            // JIKA DATANYA TIDAK ADA (Akun lama), tampilkan ini
+            _name = 'Belum Ada Nama';
+            _email = currentUser.email ?? 'Tidak ada email';
+          });
+        }
+      } catch (e) {
+        setState(() {
+          _name = 'Gagal memuat';
+          _email = 'Gagal memuat';
+        });
+        print("Error mengambil data profil: $e");
+      }
+    }
+  }
 
   // POP-UP EDIT PROFILE
   void _showEditProfileDialog(BuildContext context) {
@@ -124,14 +166,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           elevation: 4,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
-                        onPressed: () {
+                        // UBAH BAGIAN ONPRESSED INI MENJADI ASYNC
+                        onPressed: () async {
+                          User? currentUser = FirebaseAuth.instance.currentUser;
+                          
+                          // 1. Simpan perubahan ke Firestore terlebih dahulu
+                          if (currentUser != null) {
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(currentUser.uid)
+                                .update({
+                                  'name': nameController.text.trim(),
+                                  // Catatan: Biasanya email tidak diubah sembarangan lewat pop-up 
+                                  // karena butuh verifikasi keamanan ulang dari Firebase Auth.
+                                });
+                          }
+
+                          // 2. Perbarui tampilan layar
                           setState(() {
-                            _name = nameController.text;
-                            _email = emailController.text;
-                            _profileImage = tempImage;
+                            _name = nameController.text.trim();
+                            // _email = emailController.text; // Kita biarkan email sesuai database
+                            _profileImage = tempImage; // Avatar masih tersimpan lokal untuk saat ini
                           });
+                          
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile updated successfully! ✨')));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Profile updated successfully! ✨'))
+                          );
                         },
                         child: const Text('Save', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       ),
@@ -285,9 +346,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: const Text('Cancel', style: TextStyle(color: Color(0xFF164C55))),
                             ),
                             TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                              onPressed: () async {
+                                // 1. Tutup pop-up
+                                Navigator.pop(context); 
+
+                                // 2. Panggil fungsi logout Firebase untuk menghapus sesi
+                                await AuthService().logout(); 
+
+                                // 3. Karena StreamBuilder di main.dart akan mendeteksi 
+                                //    bahwa user sudah logout secara otomatis, kamu tidak perlu 
+                                //    menggunakan Navigator.push lagi. StreamBuilder akan 
+                                //    langsung mengembalikan layar ke LoginScreen.
                               },
                               child: const Text('Log Out', style: TextStyle(color: Color(0xFFF5427D), fontWeight: FontWeight.bold)),
                             ),
