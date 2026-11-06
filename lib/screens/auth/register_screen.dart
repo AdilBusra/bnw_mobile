@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bnw_mobile/auth_service.dart';
 import 'dart:math' as math;
 
 class RegisterScreen extends StatefulWidget {
@@ -10,6 +11,13 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
+  final authService = AuthService();
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -23,6 +31,10 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   @override
   void dispose() {
     _animationController.dispose();
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -179,6 +191,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                         ],
                       ),
                       child: TextFormField(
+                        controller: nameController,
                         decoration: const InputDecoration(
                           hintText: 'Full Name',
                           prefixIcon: Padding(
@@ -204,6 +217,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                         ],
                       ),
                       child: TextFormField(
+                        controller: emailController,
                         decoration: const InputDecoration(
                           hintText: 'Email Address',
                           prefixIcon: Padding(
@@ -229,6 +243,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                         ],
                       ),
                       child: TextFormField(
+                        controller: passwordController,
                         obscureText: true,
                         decoration: const InputDecoration(
                           hintText: 'Password',
@@ -255,6 +270,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                         ],
                       ),
                       child: TextFormField(
+                        controller: confirmPasswordController,
                         obscureText: true,
                         decoration: const InputDecoration(
                           hintText: 'Confirm Password',
@@ -274,10 +290,44 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                         elevation: 8,
                         shadowColor: const Color(0xFFF5427D).withOpacity(0.5),
                       ),
-                      onPressed: () {
-                        Navigator.pop(context);
+                      onPressed: _isLoading ? null : () async {
+                        // Validasi apakah password dan konfirmasi password sama
+                        if (passwordController.text != confirmPasswordController.text) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Password tidak cocok!")),
+                          );
+                          return; // Hentikan eksekusi jika tidak cocok
+                        }
+
+                        setState(() => _isLoading = true);
+                        
+                        // Panggil fungsi register dari authService
+                        String? hasil = await authService.register(
+                          nameController.text.trim(),   // INI YANG BARU DITAMBAHKAN
+                          emailController.text.trim(),
+                          passwordController.text.trim(),
+                        );
+                        
+                        setState(() => _isLoading = false);
+
+                        if (hasil == "Berhasil Daftar") {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Akun berhasil dibuat! Silakan login.")),
+                          );
+                          Navigator.pop(context); // Kembali ke halaman login
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(hasil ?? "Terjadi kesalahan")),
+                          );
+                        }
                       },
-                      child: const Text('Sign up'), // Teks tombol diganti
+                      child: _isLoading 
+                          ? const SizedBox(
+                              height: 20, 
+                              width: 20, 
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                            )
+                          : const Text('Sign up'),
                     ),
 
                     SizedBox(height: screenHeight * 0.02),
