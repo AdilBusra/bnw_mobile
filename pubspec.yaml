@@ -23,8 +23,35 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.4
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
+
+# Konfigurasi Ikon Aplikasi (Android, iOS, Web)
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  background_color_ios: "#FEFBEA"
+  image_path: "assets/images/logo_padded.png"
+  adaptive_icon_background: "#FEFBEA"
+  adaptive_icon_foreground: "assets/images/logo_padded.png"
+  web:
+    generate: true
+    image_path: "assets/images/logo_padded.png"
+    background_color: "#FEFBEA"
+    theme_color: "#FEFBEA"
+
+# Konfigurasi Native Splash Screen (tanpa logo Flutter & warna ikut splash_screen.dart)
+flutter_native_splash:
+  color: "#FEFBEA"
+  image: "assets/images/logo_padded.png"
+  android_12:
+    color: "#FEFBEA"
+    image: "assets/images/logo_padded.png"
+  ios: true
+  web: true
