@@ -46,8 +46,9 @@ class _AdminState {
   };
 
   factory _AdminState.fromJson(Map<String, dynamic> j) {
-    if (j['schemaVersion'] != 1)
+    if (j['schemaVersion'] != 1) {
       throw const FormatException('Unsupported admin data version');
+    }
     return _AdminState(
       (j['trips'] as List)
           .map((v) => AdminTrip.fromJson(Map<String, dynamic>.from(v as Map)))
@@ -71,12 +72,15 @@ class AdminStore extends ChangeNotifier {
   final CollectionReference _tripsRef = FirebaseFirestore.instance.collection(
     'trips',
   );
+  final CollectionReference _bookingsRef = FirebaseFirestore.instance
+      .collection('bookings');
 
   late _AdminState _state;
   ReadAdminState? _read;
   WriteAdminState? _write;
   Future<void> _queue = Future<void>.value();
   StreamSubscription<QuerySnapshot>? _tripsSubscription;
+  StreamSubscription<QuerySnapshot>? _bookingsSubscription;
   bool authenticated = false;
 
   AdminStore({DateTime Function()? clock}) : clock = clock ?? DateTime.now {
@@ -113,7 +117,18 @@ class AdminStore extends ChangeNotifier {
     return null;
   }
 
-  AdminUser userById(String id) => users.firstWhere((u) => u.id == id);
+  AdminUser userById(String id) {
+    for (final user in users) {
+      if (user.id == id) return user;
+    }
+    return AdminUser(
+      id: id,
+      name: 'Customer',
+      email: '-',
+      phone: '-',
+      active: true,
+    );
+  }
 
   int reservedSeats(String tripId) => bookings
       .where(
@@ -175,6 +190,7 @@ class AdminStore extends ChangeNotifier {
     }
     notifyListeners();
     _startTripsFirestoreSync();
+    _startBookingsFirestoreSync();
   }
 
   void _startTripsFirestoreSync() {
@@ -183,8 +199,6 @@ class AdminStore extends ChangeNotifier {
 
     _tripsSubscription = _tripsRef.snapshots().listen(
       (snapshot) async {
-        // Jika koleksi 'trips' di Firestore masih kosong saat pertama kali dibuka,
-        // unggah data trip awal (seed) agar database langsung terisi.
         if (!initialHandled &&
             snapshot.docs.isEmpty &&
             _state.trips.isNotEmpty) {
@@ -219,6 +233,73 @@ class AdminStore extends ChangeNotifier {
       },
       onError: (Object error) {
         debugPrint('Firestore trips stream error: $error');
+      },
+    );
+  }
+
+  void _startBookingsFirestoreSync() {
+    _bookingsSubscription?.cancel();
+
+    _bookingsSubscription = _bookingsRef.snapshots().listen(
+      (snapshot) async {
+        final remoteBookings = <AdminBooking>[];
+
+        for (final doc in snapshot.docs) {
+          try {
+            final data = Map<String, dynamic>.from(doc.data() as Map);
+            final booking = AdminBooking.fromJson(data, docId: doc.id);
+            remoteBookings.add(booking);
+
+            final existingIdx = _state.users.indexWhere(
+              (u) => u.id == booking.userId,
+            );
+            final customerName = (data['customerName'] as String?)?.trim();
+            final customerEmail = (data['customerEmail'] as String?)?.trim();
+            final customerPhone = (data['customerPhone'] as String?)?.trim();
+
+            if (existingIdx < 0) {
+              _state.users.add(
+                AdminUser(
+                  id: booking.userId,
+                  name: (customerName != null && customerName.isNotEmpty)
+                      ? customerName
+                      : 'Customer',
+                  email: (customerEmail != null && customerEmail.isNotEmpty)
+                      ? customerEmail
+                      : '-',
+                  phone: (customerPhone != null && customerPhone.isNotEmpty)
+                      ? customerPhone
+                      : '-',
+                  active: true,
+                ),
+              );
+            } else if (customerName != null && customerName.isNotEmpty) {
+              final old = _state.users[existingIdx];
+              _state.users[existingIdx] = AdminUser(
+                id: old.id,
+                name: customerName,
+                email: (customerEmail != null && customerEmail.isNotEmpty)
+                    ? customerEmail
+                    : old.email,
+                phone: (customerPhone != null && customerPhone.isNotEmpty)
+                    ? customerPhone
+                    : old.phone,
+                active: old.active,
+              );
+            }
+          } catch (e) {
+            debugPrint('Gagal parsing booking ${doc.id}: $e');
+          }
+        }
+
+        _state.bookings = remoteBookings;
+        if (_write != null) {
+          await _write!(jsonEncode(_state.toJson()));
+        }
+        notifyListeners();
+      },
+      onError: (Object error) {
+        debugPrint('Firestore bookings stream error: $error');
       },
     );
   }
@@ -305,30 +386,40 @@ class AdminStore extends ChangeNotifier {
 
   // DELETE dari Firestore
   Future<void> deleteTrip(String id) => _commit((state) {
-    if (!state.trips.any((t) => t.id == id))
+    if (!state.trips.any((t) => t.id == id)) {
       throw StateError('Trip sudah dihapus.');
+    }
     state.trips.removeWhere((t) => t.id == id);
   }, remoteAction: () => _tripsRef.doc(id).delete());
 
+  // UPDATE status pembayaran ke Firestore
   Future<void> reviewPayment(String id, PaymentStatus status, {String? note}) =>
-      _commit((state) {
-        final index = state.bookings.indexWhere((b) => b.id == id);
-        if (index < 0) throw StateError('Pesanan tidak ditemukan.');
-        if (state.bookings[index].paymentStatus != PaymentStatus.pending) {
-          throw StateError('Pembayaran ini sudah diproses.');
-        }
-        if (status == PaymentStatus.pending)
-          throw ArgumentError('Pilih hasil verifikasi.');
-        if (status == PaymentStatus.rejected &&
-            (note == null || note.trim().isEmpty)) {
-          throw ArgumentError('Tuliskan alasan penolakan.');
-        }
-        state.bookings[index] = state.bookings[index].reviewed(
-          status,
-          clock(),
-          note?.trim(),
-        );
-      });
+      _commit(
+        (state) {
+          final index = state.bookings.indexWhere((b) => b.id == id);
+          if (index < 0) throw StateError('Pesanan tidak ditemukan.');
+          if (state.bookings[index].paymentStatus != PaymentStatus.pending) {
+            throw StateError('Pembayaran ini sudah diproses.');
+          }
+          if (status == PaymentStatus.pending) {
+            throw ArgumentError('Pilih hasil verifikasi.');
+          }
+          if (status == PaymentStatus.rejected &&
+              (note == null || note.trim().isEmpty)) {
+            throw ArgumentError('Tuliskan alasan penolakan.');
+          }
+          state.bookings[index] = state.bookings[index].reviewed(
+            status,
+            clock(),
+            note?.trim(),
+          );
+        },
+        remoteAction: () => _bookingsRef.doc(id).set({
+          'paymentStatus': status.name,
+          'reviewNote': note?.trim(),
+          'reviewedAt': clock().toIso8601String(),
+        }, SetOptions(merge: true)),
+      );
 
   Future<void> updateProfile(
     String name,
@@ -388,11 +479,13 @@ class AdminStore extends ChangeNotifier {
         'Password minimal 8 karakter, berisi huruf dan angka.',
       );
     }
-    if (next != confirmation)
+    if (next != confirmation) {
       throw ArgumentError('Konfirmasi password tidak sama.');
+    }
     if (next == current) throw ArgumentError('Password baru harus berbeda.');
-    if (!await checkPassword(current))
+    if (!await checkPassword(current)) {
       throw ArgumentError('Password saat ini salah.');
+    }
     final oldHash = profile.passwordHash;
     final random = Random.secure();
     final salt = base64Encode(
@@ -403,8 +496,9 @@ class AdminStore extends ChangeNotifier {
       'salt': salt,
     });
     await _commit((state) {
-      if (state.profile.passwordHash != oldHash)
+      if (state.profile.passwordHash != oldHash) {
         throw StateError('Password sudah berubah. Coba lagi.');
+      }
       state.profile = state.profile.copyWith(
         passwordHash: hash,
         passwordSalt: salt,
@@ -415,6 +509,7 @@ class AdminStore extends ChangeNotifier {
   @override
   void dispose() {
     _tripsSubscription?.cancel();
+    _bookingsSubscription?.cancel();
     super.dispose();
   }
 }
