@@ -3,7 +3,6 @@ import '../../core/admin/admin_store.dart';
 import '../../widgets/admin/admin_ui.dart';
 import '../../widgets/common/trip_facilities.dart';
 import 'add_edit_trip_screen.dart';
-import 'participant_manifest_screen.dart';
 import 'itinerary_management_screen.dart';
 
 class AdminTripDetailScreen extends StatefulWidget {
@@ -12,6 +11,7 @@ class AdminTripDetailScreen extends StatefulWidget {
   @override
   State<AdminTripDetailScreen> createState() => _AdminTripDetailScreenState();
 }
+ 
 
 class _AdminTripDetailScreenState extends State<AdminTripDetailScreen> {
   bool _deleting = false;
