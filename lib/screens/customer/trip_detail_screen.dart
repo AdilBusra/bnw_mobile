@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'saved_screen.dart';
 import 'ai_chat_screen.dart';
@@ -10,6 +11,64 @@ class TripDetailScreen extends StatefulWidget {
 }
 
 class _TripDetailScreenState extends State<TripDetailScreen> {
+
+  Widget _buildHeaderImage(Map<String, dynamic> trip) {
+    final rawBase64 = trip['imageBase64'] as String?;
+    if (rawBase64 != null && rawBase64.trim().isNotEmpty) {
+      try {
+        final cleaned = rawBase64.contains(',')
+            ? rawBase64.split(',').last.trim()
+            : rawBase64.trim();
+        return Image.memory(
+          base64Decode(cleaned),
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Image.asset(
+            trip['image'] ?? 'assets/images/nature.jfif',
+            fit: BoxFit.cover,
+          ),
+        );
+      } catch (_) {
+        // Fallback ke asset lokal jika Base64 gagal di-decode
+      }
+    }
+    return Image.asset(
+      trip['image'] ?? 'assets/images/nature.jfif',
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Image.asset(
+        'assets/images/nature.jfif',
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
+  Widget _buildFacilityBadge(String label) {
+    final lower = label.toLowerCase();
+    IconData icon = Icons.check_circle_rounded;
+    Color color = const Color(0xFF164C55);
+
+    if (lower.contains('transport') || lower.contains('jemput') || lower.contains('mobil')) {
+      icon = Icons.directions_bus_rounded;
+      color = const Color(0xFF65D5D5);
+    } else if (lower.contains('stay') || lower.contains('hotel') || lower.contains('inap') || lower.contains('tenda')) {
+      icon = Icons.king_bed_rounded;
+      color = const Color(0xFFFFC857);
+    } else if (lower.contains('meal') || lower.contains('makan') || lower.contains('konsumsi')) {
+      icon = Icons.restaurant_rounded;
+      color = const Color(0xFFFF8066);
+    } else if (lower.contains('photo') || lower.contains('foto') || lower.contains('dokumentasi')) {
+      icon = Icons.camera_alt_rounded;
+      color = const Color(0xFFF5427D);
+    } else if (lower.contains('guide') || lower.contains('pemandu')) {
+      icon = Icons.support_agent_rounded;
+      color = const Color(0xFF5C7AEA);
+    } else if (lower.contains('tiket') || lower.contains('masuk')) {
+      icon = Icons.confirmation_number_rounded;
+      color = const Color(0xFF4CAF50);
+    }
+
+    return _buildAmenityIcon(icon, label, color);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -118,7 +177,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                 background: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.asset(trip['image'], fit: BoxFit.cover),
+                    _buildHeaderImage(trip),
                     const DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -195,11 +254,28 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                       ),
                       const SizedBox(height: 8),
                       Row(
+                      children: [
+                        const Icon(Icons.calendar_today_rounded, color: Color(0xFF164C55), size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${trip['date'] ?? '15 July 2026'} (${trip['category'] ?? 'Open Trip'})',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: const Color(0xFF164C55),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if ((trip['capacity'] as num?) != null && (trip['capacity'] as num) > 0) ...[
+                      const SizedBox(height: 8),
+                      Row(
                         children: [
-                          const Icon(Icons.calendar_today_rounded, color: Color(0xFF164C55), size: 18),
+                          const Icon(Icons.people_alt_rounded, color: Color(0xFF164C55), size: 18),
                           const SizedBox(width: 8),
                           Text(
-                            '${trip['date'] ?? '15 July 2026'} (Open Trip) / Flexible Date',
+                            'Kuota: ${trip['capacity']} peserta',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: const Color(0xFF164C55),
                               fontWeight: FontWeight.bold,
@@ -207,25 +283,43 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 32),
-                      Text('About the trip', style: theme.textTheme.displayMedium),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Get ready for the ultimate tropical escape! Enjoy the stunning views, crystal-clear waters, and make unforgettable memories with your besties in North Sumatra.',
-                        style: theme.textTheme.bodyLarge?.copyWith(height: 1.6),
-                      ),
-                      const SizedBox(height: 32),
-                      Text('What\'s included', style: theme.textTheme.displayMedium),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildAmenityIcon(Icons.flight_takeoff_rounded, 'Transport', const Color(0xFF65D5D5)),
-                          _buildAmenityIcon(Icons.king_bed_rounded, 'Stay', const Color(0xFFFFC857)),
-                          _buildAmenityIcon(Icons.restaurant_rounded, 'Meals', const Color(0xFFFF8066)),
-                          _buildAmenityIcon(Icons.camera_alt_rounded, 'Photos', const Color(0xFFF5427D)),
-                        ],
-                      ),
+                    ],
+                    const SizedBox(height: 32),
+                    Text('About the trip', style: theme.textTheme.displayMedium),
+                    const SizedBox(height: 12),
+                    Text(
+                      ((trip['description'] as String?)?.trim().isNotEmpty ?? false)
+                          ? trip['description']
+                          : 'Belum ada deskripsi untuk perjalanan ini.',
+                      style: theme.textTheme.bodyLarge?.copyWith(height: 1.6),
+                    ),
+                    const SizedBox(height: 32),
+                    Text('What\'s included', style: theme.textTheme.displayMedium),
+                    const SizedBox(height: 16),
+                    Builder(
+                      builder: (context) {
+                        final facilities = (trip['facilities'] as List?)
+                                ?.map((e) => e.toString())
+                                .where((e) => e.trim().isNotEmpty)
+                                .toList() ??
+                            [];
+
+                        if (facilities.isEmpty) {
+                          return Text(
+                            'Fasilitas mengikuti detail paket trip.',
+                            style: theme.textTheme.bodyMedium,
+                          );
+                        }
+
+                        return Wrap(
+                          spacing: 16,
+                          runSpacing: 16,
+                          children: facilities
+                              .map((item) => _buildFacilityBadge(item))
+                              .toList(),
+                        );
+                      },
+                    ),
 
                       // BAGIAN ULASAN ORANG LAIN DI PALING BAWAH
                       const SizedBox(height: 40),

@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../../services/trip_service.dart';
 
 class CatalogScreen extends StatefulWidget {
   const CatalogScreen({super.key});
@@ -11,55 +13,46 @@ class _CatalogScreenState extends State<CatalogScreen> {
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
-  final List<Map<String, dynamic>> allDestinations = [
-    {
-      'title': 'Sipolha Peak Sunrise',
-      'location': 'Sipolha, Simalungun',
-      'category': 'Open Trip',
-      'price': 'Rp 350.000',
-      'rating': '4.9',
-      'image': 'assets/images/sipolha1.png',
-      'date': '15 July 2026',
-    },
-    {
-      'title': 'Bukit Holbung Camp',
-      'location': 'Samosir, Sumut',
-      'category': 'Private Trip',
-      'price': 'Rp 250.000',
-      'rating': '4.8',
-      'image': 'assets/images/holbung.png',
-      'date': '22 July 2026',
-    },
-    {
-      'title': 'Sipolha Boat Tour',
-      'location': 'Danau Toba',
-      'category': 'Family Trip',
-      'price': 'Rp 850.000',
-      'rating': '5.0',
-      'image': 'assets/images/sipolha2.png',
-      'date': '5 August 2026',
-    },
-    {
-      'title': 'Parbaba Beach Relax',
-      'location': 'Samosir, Sumut',
-      'category': 'Honeymoon',
-      'price': 'Rp 400.000',
-      'rating': '4.7',
-      'image': 'assets/images/parbaba.png',
-      'date': '12 August 2026',
-    },
-  ];
+  Widget _buildCardImage(Map<String, dynamic> trip) {
+    final rawBase64 = trip['imageBase64'] as String?;
+    if (rawBase64 != null && rawBase64.trim().isNotEmpty) {
+      try {
+        final cleaned = rawBase64.contains(',')
+            ? rawBase64.split(',').last.trim()
+            : rawBase64.trim();
+        return Image.memory(
+          base64Decode(cleaned),
+          width: 120,
+          height: 125,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Image.asset(
+            'assets/images/nature.jfif',
+            width: 120,
+            height: 125,
+            fit: BoxFit.cover,
+          ),
+        );
+      } catch (_) {
+        // Fallback ke asset lokal jika string Base64 rusak
+      }
+    }
+    return Image.asset(
+      trip['image'] ?? 'assets/images/nature.jfif',
+      width: 120,
+      height: 125,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Image.asset(
+        'assets/images/nature.jfif',
+        width: 120,
+        height: 125,
+        fit: BoxFit.cover,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    // Filter berdasarkan teks pencarian
-    final filteredList = allDestinations.where((trip) {
-      final query = _searchQuery.toLowerCase();
-      return trip['title'].toLowerCase().contains(query) ||
-          trip['location'].toLowerCase().contains(query);
-    }).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFF7DF),
@@ -78,7 +71,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
       ),
       body: Column(
         children: [
-          // SEARCH BAR AKTIF
           Padding(
             padding: const EdgeInsets.all(24.0),
             child: Container(
@@ -113,104 +105,131 @@ class _CatalogScreenState extends State<CatalogScreen> {
             ),
           ),
           Expanded(
-            child: filteredList.isEmpty
-                ? const Center(child: Text('Destinasi tidak ditemukan!'))
-                : ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              itemCount: filteredList.length,
-              itemBuilder: (context, index) {
-                final trip = filteredList[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/detail', arguments: trip);
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 15, offset: const Offset(0, 5)),
-                      ],
+            child: StreamBuilder<List>(
+              stream: TripService.tripsStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Color(0xFFF5427D)),
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Text(
+                        'Gagal memuat trip:\n${snapshot.error}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.red),
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        // PERBAIKAN: Menggunakan ClipRRect tanpa ada padding luar agar gambar menempel sempurna di sudut card
-                        ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(24),
-                            bottomLeft: Radius.circular(24),
-                          ),
-                          child: Image.asset(
-                            trip['image'],
-                            width: 120,
-                            height: 125,
-                            fit: BoxFit.cover,
-                          ),
+                  );
+                }
+
+                final allDestinations = snapshot.data ?? [];
+                final filteredList = allDestinations.where((trip) {
+                  final query = _searchQuery.toLowerCase();
+                  return (trip['title'] ?? '').toString().toLowerCase().contains(query) ||
+                      (trip['location'] ?? '').toString().toLowerCase().contains(query);
+                }).toList();
+
+                if (filteredList.isEmpty) {
+                  return const Center(child: Text('Destinasi tidak ditemukan!'));
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  itemCount: filteredList.length,
+                  itemBuilder: (context, index) {
+                    final trip = filteredList[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, '/detail', arguments: trip);
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 15, offset: const Offset(0, 5)),
+                          ],
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(24),
+                                bottomLeft: Radius.circular(24),
+                              ),
+                              child: _buildCardImage(trip),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(
-                                      child: Text(
-                                        trip['title'],
-                                        style: theme.textTheme.titleLarge?.copyWith(fontSize: 16),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
                                     Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        const Icon(Icons.star_rounded, color: Color(0xFFFFC857), size: 16),
-                                        Text(trip['rating'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                        Expanded(
+                                          child: Text(
+                                            trip['title'],
+                                            style: theme.textTheme.titleLarge?.copyWith(fontSize: 16),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.star_rounded, color: Color(0xFFFFC857), size: 16),
+                                            Text(trip['rating'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(trip['location'], style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12)),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          trip['price'],
+                                          style: theme.textTheme.displayMedium?.copyWith(
+                                            color: const Color(0xFFF5427D),
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(right: 12.0),
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(0xFFF5427D),
+                                              minimumSize: Size.zero,
+                                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                            ),
+                                            onPressed: () {
+                                              Navigator.pushNamed(context, '/detail', arguments: trip);
+                                            },
+                                            child: const Text('Explore', style: TextStyle(fontSize: 12, color: Colors.white)),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 4),
-                                Text(trip['location'], style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12)),
-                                const SizedBox(height: 12),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      trip['price'],
-                                      style: theme.textTheme.displayMedium?.copyWith(
-                                        color: const Color(0xFFF5427D),
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 12.0),
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFFF5427D),
-                                          minimumSize: Size.zero,
-                                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                        ),
-                                        onPressed: () {
-                                          Navigator.pushNamed(context, '/detail', arguments: trip);
-                                        },
-                                        child: const Text('Explore', style: TextStyle(fontSize: 12, color: Colors.white)),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 );
               },
             ),
