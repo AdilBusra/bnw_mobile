@@ -12,6 +12,7 @@ import 'payment_verification_screen.dart';
 import 'active_users_screen.dart';
 import 'need_verify_screen.dart';
 import 'low_quota_screen.dart';
+import 'participant_manifest_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -178,6 +179,14 @@ class AdminHomeTabContent extends StatelessWidget {
                     ),
                     icon: const Icon(Icons.verified_outlined),
                     label: const Text('Verify Payments'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () => openAdmin(
+                      context,
+                      const ParticipantManifestScreen(),
+                    ),
+                    icon: const Icon(Icons.groups_outlined),
+                    label: const Text('Manifest'),
                   ),
                 ],
               ),
