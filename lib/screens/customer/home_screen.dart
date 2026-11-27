@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../../services/trip_service.dart';
 
 import 'saved_screen.dart';
 import 'profile_screen.dart';
@@ -112,55 +114,20 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
     'assets/images/promo2.png',
   ];
 
-  final List<Map<String, dynamic>> _destinations = [
-    {
-      'title': 'Sipolha Peak Sunrise',
-      'location': 'Sipolha, Simalungun',
-      'category': 'Open Trip',
-      'price': 'Rp 350.000',
-      'rating': '4.9',
-      'image': 'assets/images/sipolha1.png',
-      'date': '15 July 2026',
-    },
-    {
-      'title': 'Bukit Holbung Camp',
-      'location': 'Samosir, Sumut',
-      'category': 'Private Trip',
-      'price': 'Rp 250.000',
-      'rating': '4.8',
-      'image': 'assets/images/holbung.png',
-      'date': '22 July 2026',
-    },
-    {
-      'title': 'Sipolha Boat Tour',
-      'location': 'Danau Toba',
-      'category': 'Family Trip',
-      'price': 'Rp 850.000',
-      'rating': '5.0',
-      'image': 'assets/images/sipolha2.png',
-      'date': '5 August 2026',
-    },
-    {
-      'title': 'Parbaba Beach Relax',
-      'location': 'Samosir, Sumut',
-      'category': 'Honeymoon',
-      'price': 'Rp 400.000',
-      'rating': '4.7',
-      'image': 'assets/images/parbaba.png',
-      'date': '12 August 2026',
-    },
-  ];
-
   final List<Map<String, String>> _reviews = [
     {
       'name': 'Sarah L.',
-      'text': '"Sipolha is totally a hidden gem! The trip was well organized and so aesthetic."',
-      'image': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop',
+      'text':
+          '"Sipolha is totally a hidden gem! The trip was well organized and so aesthetic."',
+      'image':
+          'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop',
     },
     {
       'name': 'Michelle O.',
-      'text': '"Best girls trip ever. The view from Bukit Holbung was breathtaking!"',
-      'image': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150&auto=format&fit=crop',
+      'text':
+          '"Best girls trip ever. The view from Bukit Holbung was breathtaking!"',
+      'image':
+          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150&auto=format&fit=crop',
     },
   ];
 
@@ -171,22 +138,56 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
   void _toggleSave(Map<String, dynamic> trip) {
     setState(() {
       if (_isSaved(trip)) {
-        globalSavedTrips.removeWhere((element) => element['title'] == trip['title']);
+        globalSavedTrips.removeWhere(
+          (element) => element['title'] == trip['title'],
+        );
       } else {
         globalSavedTrips.add(trip);
       }
     });
   }
 
+  Widget _buildCardImage(Map<String, dynamic> trip) {
+    final rawBase64 = trip['imageBase64'] as String?;
+    if (rawBase64 != null && rawBase64.trim().isNotEmpty) {
+      try {
+        final cleaned = rawBase64.contains(',')
+            ? rawBase64.split(',').last.trim()
+            : rawBase64.trim();
+        return Image.memory(
+          base64Decode(cleaned),
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (_, __, ___) => Image.asset(
+            trip['image'] ?? 'assets/images/nature.jfif',
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+          ),
+        );
+      } catch (_) {
+        // Fallback ke asset lokal jika string Base64 tidak valid
+      }
+    }
+    return Image.asset(
+      trip['image'] ?? 'assets/images/nature.jfif',
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (_, __, ___) => Image.asset(
+        'assets/images/nature.jfif',
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final size = MediaQuery.sizeOf(context);
-
-    // Filter destinasi berdasarkan kategori
-    final filteredDestinations = _selectedCategory == 0
-        ? _destinations
-        : _destinations.where((d) => d['category'] == _categories[_selectedCategory]).toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -226,11 +227,18 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                     Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFFF5427D), size: 28),
+                          icon: const Icon(
+                            Icons.notifications_none_rounded,
+                            color: Color(0xFFF5427D),
+                            size: 28,
+                          ),
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const NotificationScreen(),
+                              ),
                             );
                           },
                         ),
@@ -239,12 +247,17 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                           padding: const EdgeInsets.all(3.0),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: const Color(0xFFF5427D), width: 2),
+                            border: Border.all(
+                              color: const Color(0xFFF5427D),
+                              width: 2,
+                            ),
                           ),
                           child: const CircleAvatar(
                             radius: 24,
                             backgroundColor: Colors.white,
-                            backgroundImage: AssetImage('assets/images/profile.png'),
+                            backgroundImage: AssetImage(
+                              'assets/images/profile.png',
+                            ),
                           ),
                         ),
                       ],
@@ -260,7 +273,11 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(999),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 15, offset: const Offset(0, 5)),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
                     ],
                   ),
                   child: TextFormField(
@@ -269,7 +286,9 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                       if (value.trim().isNotEmpty) {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const CatalogScreen()),
+                          MaterialPageRoute(
+                            builder: (context) => const CatalogScreen(),
+                          ),
                         );
                       }
                     },
@@ -285,8 +304,15 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                         padding: const EdgeInsets.only(right: 12.0),
                         child: Container(
                           margin: const EdgeInsets.all(8.0),
-                          decoration: const BoxDecoration(color: Color(0xFF65D5D5), shape: BoxShape.circle),
-                          child: const Icon(Icons.tune, color: Colors.white, size: 20),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF65D5D5),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.tune,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
                       ),
                       border: OutlineInputBorder(
@@ -315,7 +341,10 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                       margin: const EdgeInsets.symmetric(horizontal: 8.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(24),
-                        image: DecorationImage(image: AssetImage(_promos[index]), fit: BoxFit.cover),
+                        image: DecorationImage(
+                          image: AssetImage(_promos[index]),
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     );
                   },
@@ -343,7 +372,9 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                           });
                         },
                         labelStyle: TextStyle(
-                          color: isSelected ? Colors.white : const Color(0xFF164C55),
+                          color: isSelected
+                              ? Colors.white
+                              : const Color(0xFF164C55),
                           fontWeight: FontWeight.bold,
                         ),
                         backgroundColor: Colors.white,
@@ -351,7 +382,9 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(999),
                           side: BorderSide(
-                            color: isSelected ? Colors.transparent : const Color(0xFFFFD1DC),
+                            color: isSelected
+                                ? Colors.transparent
+                                : const Color(0xFFFFD1DC),
                             width: 2,
                           ),
                         ),
@@ -368,12 +401,17 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Popular Escapes', style: theme.textTheme.displayMedium),
+                    Text(
+                      'Popular Escapes',
+                      style: theme.textTheme.displayMedium,
+                    ),
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const CatalogScreen()),
+                          MaterialPageRoute(
+                            builder: (context) => const CatalogScreen(),
+                          ),
                         );
                       },
                       child: Text(
@@ -392,101 +430,219 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
               // TRIP CARDS HORIZONTAL
               SizedBox(
                 height: size.height * 0.42,
-                child: filteredDestinations.isEmpty
-                    ? const Center(child: Text('No trips found in this category!'))
-                    : ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: filteredDestinations.length,
-                  itemBuilder: (context, index) {
-                    final trip = filteredDestinations[index];
-                    final saved = _isSaved(trip);
-
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/detail', arguments: trip);
-                      },
-                      child: Container(
-                        width: size.width * 0.65,
-                        margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(32),
-                          boxShadow: [
-                            BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 20, offset: const Offset(0, 10)),
-                          ],
+                child: StreamBuilder<List<TripData>>(
+                  stream: TripService.tripsStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFFF5427D),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Stack(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(24),
-                                      child: Image.asset(trip['image'], fit: BoxFit.cover, width: double.infinity, height: double.infinity),
-                                    ),
-                                    Positioned(
-                                      top: 12,
-                                      right: 12,
-                                      child: GestureDetector(
-                                        onTap: () => _toggleSave(trip),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                                          child: Icon(saved ? Icons.favorite : Icons.favorite_border_rounded, color: const Color(0xFFF5427D), size: 20),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Text(
+                            'Gagal memuat trip:\n${snapshot.error}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      );
+                    }
+
+                    final allDestinations = snapshot.data ?? [];
+                    final selectedCat = _categories[_selectedCategory]
+                        .toLowerCase();
+                    final filteredDestinations = _selectedCategory == 0
+                        ? allDestinations
+                        : allDestinations.where((d) {
+                            final cat = (d['category'] ?? '')
+                                .toString()
+                                .toLowerCase();
+                            return cat == selectedCat ||
+                                cat.contains(
+                                  selectedCat.replaceAll(' trip', ''),
+                                );
+                          }).toList();
+
+                    if (filteredDestinations.isEmpty) {
+                      return const Center(
+                        child: Text('No trips found in this category!'),
+                      );
+                    }
+
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: filteredDestinations.length,
+                      itemBuilder: (context, index) {
+                        final trip = filteredDestinations[index];
+                        final saved = _isSaved(trip);
+
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/detail',
+                              arguments: trip,
+                            );
+                          },
+                          child: Container(
+                            width: size.width * 0.65,
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                              vertical: 8.0,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(32),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.12),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Stack(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            24,
+                                          ),
+                                          child: _buildCardImage(trip),
+                                        ),
+                                        Positioned(
+                                          top: 12,
+                                          right: 12,
+                                          child: GestureDetector(
+                                            onTap: () => _toggleSave(trip),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: const BoxDecoration(
+                                                color: Colors.white,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                saved
+                                                    ? Icons.favorite
+                                                    : Icons
+                                                          .favorite_border_rounded,
+                                                color: const Color(0xFFF5427D),
+                                                size: 20,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    20,
+                                    8,
+                                    20,
+                                    20,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: Text(trip['title'], style: theme.textTheme.titleLarge?.copyWith(fontSize: 16), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                      ),
                                       Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          const Icon(Icons.star_rounded, color: Color(0xFFFFC857), size: 18),
-                                          Text(trip['rating'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                                          Expanded(
+                                            child: Text(
+                                              trip['title'],
+                                              style: theme.textTheme.titleLarge
+                                                  ?.copyWith(fontSize: 16),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.star_rounded,
+                                                color: Color(0xFFFFC857),
+                                                size: 18,
+                                              ),
+                                              Text(
+                                                trip['rating'],
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        trip['location'],
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(fontSize: 12),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            trip['price'],
+                                            style: theme.textTheme.displayMedium
+                                                ?.copyWith(
+                                                  color: const Color(
+                                                    0xFFF5427D,
+                                                  ),
+                                                  fontSize: 16,
+                                                ),
+                                          ),
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(
+                                                0xFFF5427D,
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 16,
+                                                    vertical: 8,
+                                                  ),
+                                              minimumSize: Size.zero,
+                                            ),
+                                            onPressed: () =>
+                                                Navigator.pushNamed(
+                                                  context,
+                                                  '/detail',
+                                                  arguments: trip,
+                                                ),
+                                            child: const Text(
+                                              'Book',
+                                              style: TextStyle(fontSize: 12),
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(trip['location'], style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12)),
-                                  const SizedBox(height: 12),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(trip['price'], style: theme.textTheme.displayMedium?.copyWith(color: const Color(0xFFF5427D), fontSize: 16)),
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFFF5427D),
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                          minimumSize: Size.zero,
-                                        ),
-                                        onPressed: () => Navigator.pushNamed(context, '/detail', arguments: trip),
-                                        child: const Text('Book', style: TextStyle(fontSize: 12)),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
@@ -496,7 +652,10 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
               // WHAT THEY SAY
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text('What They Say', style: theme.textTheme.displayMedium),
+                child: Text(
+                  'What They Say',
+                  style: theme.textTheme.displayMedium,
+                ),
               ),
               const SizedBox(height: 16),
               SizedBox(
@@ -509,25 +668,51 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
                     final review = _reviews[index];
                     return Container(
                       width: size.width * 0.75,
-                      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 8.0,
+                      ),
                       padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 15, offset: const Offset(0, 5))],
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 15,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              CircleAvatar(radius: 20, backgroundImage: NetworkImage(review['image']!)),
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundImage: NetworkImage(review['image']!),
+                              ),
                               const SizedBox(width: 12),
-                              Text(review['name']!, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF164C55))),
+                              Text(
+                                review['name']!,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF164C55),
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 12),
-                          Expanded(child: Text(review['text']!, style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 12))),
+                          Expanded(
+                            child: Text(
+                              review['text']!,
+                              style: const TextStyle(
+                                fontStyle: FontStyle.italic,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     );
