@@ -3,6 +3,7 @@ import '../../core/admin/admin_store.dart';
 import '../../widgets/admin/admin_ui.dart';
 import '../../widgets/common/trip_facilities.dart';
 import 'add_edit_trip_screen.dart';
+import 'participant_manifest_screen.dart';
 
 class AdminTripDetailScreen extends StatefulWidget {
   final String tripId;
@@ -56,10 +57,28 @@ class _AdminTripDetailScreenState extends State<AdminTripDetailScreen> {
         const SizedBox(height: 30),
         if (_deleting) const LinearProgressIndicator(),
         Wrap(spacing: 12, runSpacing: 12, children: [
-          FilledButton.icon(onPressed: _deleting ? null : () => openAdmin(context, AddEditTripScreen(tripId: trip.id)),
-              icon: const Icon(Icons.edit_outlined), label: const Text('Edit Trip')),
-          OutlinedButton.icon(onPressed: _deleting ? null : _delete,
-              icon: const Icon(Icons.delete_outline), label: const Text('Delete Trip')),
+          FilledButton.icon(
+            onPressed: _deleting
+                ? null
+                : () => openAdmin(
+                      context,
+                      ParticipantManifestScreen(initialTripId: trip.id),
+                    ),
+            icon: const Icon(Icons.groups_outlined),
+            label: const Text('Manifest Peserta'),
+          ),
+          FilledButton.tonalIcon(
+            onPressed: _deleting
+                ? null
+                : () => openAdmin(context, AddEditTripScreen(tripId: trip.id)),
+            icon: const Icon(Icons.edit_outlined),
+            label: const Text('Edit Trip'),
+          ),
+          OutlinedButton.icon(
+            onPressed: _deleting ? null : _delete,
+            icon: const Icon(Icons.delete_outline),
+            label: const Text('Delete Trip'),
+          ),
         ]),
         const SizedBox(height: 28),
       ]),
