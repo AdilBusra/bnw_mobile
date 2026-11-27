@@ -9,22 +9,27 @@ class AuthService {
   Future<String?> register(String name, String email, String password) async {
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email, 
-        password: password
+        email: email,
+        password: password,
       );
 
       String uid = userCredential.user!.uid;
+      await userCredential.user?.updateDisplayName(name.trim());
 
       await _firestore.collection('users').doc(uid).set({
         'uid': uid,
-        'name': name,
-        'email': email,
-        'createdAt': FieldValue.serverTimestamp(), // Catat waktu pendaftaran
+        'name': name.trim(),
+        'email': email.trim(),
+        'phone': '',
+        'photoAsset': 'assets/images/profile.png',
+        'savedTripIds': <String>[],
+        'active': true,
+        'createdAt': FieldValue.serverTimestamp(),
       });
 
       return "Berhasil Daftar";
     } on FirebaseAuthException catch (e) {
-      return e.message; 
+      return e.message;
     } catch (e) {
       return e.toString();
     }
@@ -34,12 +39,12 @@ class AuthService {
   Future<String?> login(String email, String password) async {
     try {
       await _auth.signInWithEmailAndPassword(
-        email: email, 
-        password: password
+        email: email,
+        password: password,
       );
       return "Berhasil Login";
     } on FirebaseAuthException catch (e) {
-      return e.message; 
+      return e.message;
     }
   }
 
