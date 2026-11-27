@@ -166,24 +166,28 @@ class AdminBooking {
     'reviewedAt': reviewedAt?.toIso8601String(),
   };
 
-  factory AdminBooking.fromJson(Map<String, dynamic> j) => AdminBooking(
-    id: j['id'] as String,
-    userId: j['userId'] as String,
-    tripSnapshot: AdminTrip.fromJson(
-      Map<String, dynamic>.from(j['tripSnapshot'] as Map),
-    ),
-    participants: (j['participants'] as num).toInt(),
-    amount: (j['amount'] as num).toInt(),
-    bookedAt: AdminTrip._parseDate(j['bookedAt']),
-    bankAccount: j['bankAccount'] as String,
-    paymentStatus: PaymentStatus.values.byName(j['paymentStatus'] as String),
-    proofBase64: j['proofBase64'] as String?,
-    proofAsset: j['proofAsset'] as String?,
-    reviewNote: j['reviewNote'] as String?,
-    reviewedAt: j['reviewedAt'] == null
-        ? null
-        : AdminTrip._parseDate(j['reviewedAt']),
-  );
+  factory AdminBooking.fromJson(Map<String, dynamic> j, {String? docId}) =>
+      AdminBooking(
+        id: (j['id'] as String?) ?? docId ?? '',
+        userId: (j['userId'] as String?) ?? '',
+        tripSnapshot: AdminTrip.fromJson(
+          Map<String, dynamic>.from(j['tripSnapshot'] as Map),
+        ),
+        participants: (j['participants'] as num).toInt(),
+        amount: (j['amount'] as num).toInt(),
+        bookedAt: AdminTrip._parseDate(j['bookedAt']),
+        bankAccount: (j['bankAccount'] as String?) ?? 'BCA • 1234567890',
+        paymentStatus: PaymentStatus.values.firstWhere(
+          (e) => e.name == j['paymentStatus'],
+          orElse: () => PaymentStatus.pending,
+        ),
+        proofBase64: j['proofBase64'] as String?,
+        proofAsset: j['proofAsset'] as String?,
+        reviewNote: j['reviewNote'] as String?,
+        reviewedAt: j['reviewedAt'] == null
+            ? null
+            : AdminTrip._parseDate(j['reviewedAt']),
+      );
 }
 
 class AdminProfile {
