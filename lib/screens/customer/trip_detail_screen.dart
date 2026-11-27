@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../models/user_model.dart';
 import '../../services/user_service.dart';
 import 'ai_chat_screen.dart';
+import '../../models/itinerary_model.dart';
+import '../../services/itinerary_service.dart';
 
 class TripDetailScreen extends StatefulWidget {
   const TripDetailScreen({super.key});
@@ -399,6 +401,130 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                             children: facilities
                                 .map((item) => _buildFacilityBadge(item))
                                 .toList(),
+                          );
+                        },
+                      ),
+
+                      const SizedBox(height: 32),
+                      Text(
+                        'Trip Itinerary 🗓️',
+                        style: theme.textTheme.displayMedium,
+                      ),
+                      const SizedBox(height: 16),
+                      StreamBuilder<List<ItineraryModel>>(
+                        stream: ItineraryService.itinerariesStream(
+                          (trip['id'] ?? '').toString(),
+                        ),
+                        builder: (context, itinerarySnap) {
+                          final agendas =
+                              itinerarySnap.data ?? const <ItineraryModel>[];
+                          if (agendas.isEmpty) {
+                            return Text(
+                              'Jadwal detail kegiatan akan diinformasikan oleh tour leader.',
+                              style: theme.textTheme.bodyMedium,
+                            );
+                          }
+
+                          return Column(
+                            children: agendas.map((item) {
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.04),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFFD1DC),
+                                            borderRadius: BorderRadius.circular(
+                                              999,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            'Day ${item.dayNumber}',
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFFF5427D),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            item.timeSlot,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF164C55),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      item.title,
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF164C55),
+                                      ),
+                                    ),
+                                    if (item.location.isNotEmpty) ...[
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.location_on_outlined,
+                                            size: 14,
+                                            color: Color(0xFFF5427D),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Expanded(
+                                            child: Text(
+                                              item.location,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                    if (item.description.isNotEmpty) ...[
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        item.description,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Color(0xFF164C55),
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              );
+                            }).toList(),
                           );
                         },
                       ),
